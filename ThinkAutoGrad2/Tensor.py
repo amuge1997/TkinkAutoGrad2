@@ -397,18 +397,7 @@ if __name__ == "__main__":
     print(a.grad)
     print()
 
-    a = Tensor(n.ones((1, 2)))
-    b = Tensor(n.ones((1, 2)))
 
-    c = Concat([a, b], axis=0)()
-
-    g = n.ones_like(c.arr, dtype=n.float32)
-
-    print(g.shape)
-    c.backward(g)
-    print(b.grad)
-
-    print()
 
 
 
