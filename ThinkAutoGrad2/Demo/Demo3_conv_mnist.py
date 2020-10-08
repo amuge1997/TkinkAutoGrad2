@@ -1,4 +1,4 @@
-from ThinkAutoGrad2.Utils_conv import Conv2d
+from ThinkAutoGrad2.Conv2d import Conv2d
 from ThinkAutoGrad2.Utils import Flatten
 from ThinkAutoGrad2.Tensor import Tensor
 from ThinkAutoGrad2.Activate import Sigmoid, Relu
@@ -41,8 +41,8 @@ def load_data():
         x_ls.append(x)
     data_x = n.concatenate(x_ls)
 
-    data_x = data_x#[(data_y==0)|(data_y==1)|(data_y==2)|(data_y==3)|(data_y==4)|(data_y==5)|(data_y==6)]
-    data_y = data_y#[(data_y==0)|(data_y==1)|(data_y==2)|(data_y==3)|(data_y==4)|(data_y==5)|(data_y==6)]
+    data_x = data_x
+    data_y = data_y
 
     cls = n.max(data_y) + 1
     data_y = one_hot_encoding(data_y, cls)

@@ -148,28 +148,23 @@ class Conv2d:
         self.kernels = kernels.arr
         self.bias = bias.arr
 
-        filters = kernels.shape[0]
-        input_shape = in_features.shape
-
         kernel_shape = kernels.shape
         k_o, k_i, k_h, k_w = kernel_shape
         # 假设k_h和k_w相等
         kernel_size = k_h
 
+        input_shape = in_features.shape
         n_samples, in_channels, in_height, in_width = input_shape
 
-        self.input_shape = input_shape  # 输入形式
-        self.in_channels = in_channels  # 输入通道
-        self.out_channels = filters     # 输出通道
-        self.kernel_size = kernel_size  # 核尺寸
-        self.stride_hw = stride         # 步长
-
         # 已使用
+        self.in_channels = in_channels      # 输入通道
+        self.kernel_size = kernel_size      # 核尺寸
+        self.stride_hw = stride             # 步长
         self.is_padding = is_padding
-        self.pad_in_features = None          # 补零后的输入
-        self.pad_in_hw = None           # 输入补零后的高宽
-        self.pad_out_hw = None          # 根据补零后的输入得到的输出的高宽
-        self.pad = None                 # 补零参数,记录了高宽两个维度的补零
+        self.pad_in_features = None         # 补零后的输入
+        self.pad_in_hw = None               # 输入补零后的高宽
+        self.pad_out_hw = None              # 根据补零后的输入得到的输出的高宽
+        self.pad = None                     # 补零参数,记录了高宽两个维度的补零
 
     def __call__(self):
 
