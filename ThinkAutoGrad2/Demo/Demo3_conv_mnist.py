@@ -1,8 +1,9 @@
+import numpy as n
 from ThinkAutoGrad2.Conv2d import Conv2d
 from ThinkAutoGrad2.Utils import Flatten
 from ThinkAutoGrad2.Tensor import Tensor
 from ThinkAutoGrad2.Activate import Sigmoid, Relu
-import numpy as n
+from ThinkAutoGrad2.Optimizer import Adam
 from sklearn.metrics import accuracy_score
 
 
@@ -50,31 +51,6 @@ def load_data():
     return data_x, data_y
 
 
-adam_dc = {}
-
-
-def adam(w, grads, lr, epoch):
-    p1 = 0.9
-    p2 = 0.999
-    e = 1e-8
-    w_id = id(w)
-    global adam_dc
-    if w_id not in adam_dc:
-        adam_dc[w_id] = {
-            's': n.zeros_like(w),
-            'r': n.zeros_like(w)
-        }
-
-    adam_dc[w_id]['s'] = p1 * adam_dc[w_id]['s'] + (1 - p1) * grads
-    adam_dc[w_id]['r'] = p2 * adam_dc[w_id]['r'] + (1 - p2) * grads ** 2
-
-    s = adam_dc[w_id]['s'] / (1 - p1 ** epoch)
-    r = adam_dc[w_id]['r'] / (1 - p2 ** epoch)
-
-    ret = - lr * s / (n.sqrt(r) + e)
-    return ret
-
-
 def test2():
     data_x, data_y = load_data()
 
@@ -92,7 +68,7 @@ def test2():
 
     lr = 1e-3
     batch_size = 24
-    epochs = 1000
+    epochs = 200
     epochs_show = 10
 
     ts_kernels1 = Tensor(n.random.randn(4, 1, 2, 2) / n.sqrt(4+1), is_grad=True)
@@ -124,6 +100,8 @@ def test2():
 
     g = n.ones(loss.shape)
 
+    adam = Adam(lr)
+
     for i in range(epochs):
 
         batch_i = n.random.randint(0, n_samples, batch_size)
@@ -141,17 +119,18 @@ def test2():
 
         loss.backward(g)
 
-        ts_kernels1.arr += adam(ts_kernels1.arr, ts_kernels1.grad, lr, i+1)
-        ts_kernels2.arr += adam(ts_kernels2.arr, ts_kernels2.grad, lr, i+1)
-        ts_kernels4.arr += adam(ts_kernels4.arr, ts_kernels4.grad, lr, i + 1)
-        ts_kernels5.arr += adam(ts_kernels5.arr, ts_kernels5.grad, lr, i + 1)
-        ts_bias1.arr += adam(ts_bias1.arr, ts_bias1.grad, lr, i+1)
-        ts_bias2.arr += adam(ts_bias2.arr, ts_bias2.grad, lr, i+1)
-        ts_bias4.arr += adam(ts_bias4.arr, ts_bias4.grad, lr, i + 1)
-        ts_bias5.arr += adam(ts_bias5.arr, ts_bias5.grad, lr, i + 1)
+        adam.run(ts_kernels1)
+        adam.run(ts_kernels2)
+        adam.run(ts_kernels4)
+        adam.run(ts_kernels5)
 
-        ts_weights3.arr += adam(ts_weights3.arr, ts_weights3.grad, lr, i + 1)
-        ts_bias3.arr += adam(ts_bias3.arr, ts_bias3.grad, lr, i + 1)
+        adam.run(ts_bias1)
+        adam.run(ts_bias2)
+        adam.run(ts_bias4)
+        adam.run(ts_bias5)
+
+        adam.run(ts_weights3)
+        adam.run(ts_bias3)
 
         ts_kernels1.grad_zeros()
         ts_bias1.grad_zeros()
@@ -189,6 +168,9 @@ def test2():
 
     # 全连接16个单元,训练卷积层   acc = 0.781
     # 全连接16个单元,不训练卷积层  acc = 0.156
+
+    # 函数adam 0.20902830362319946
+    # 类adam   0.2052224576473236
 
 
 if __name__ == '__main__':
