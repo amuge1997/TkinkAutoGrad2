@@ -3,6 +3,7 @@ from ThinkAutoGrad2.Utils import Flatten
 from ThinkAutoGrad2.Tensor import Tensor
 from ThinkAutoGrad2.Activate import Sigmoid, Relu
 import numpy as n
+from sklearn.metrics import accuracy_score
 
 
 def test1():
@@ -35,15 +36,16 @@ def load_data():
 
     x_ls = []
     for i in data_x:
-        x = cv.resize(i, (10, 10))
+        x = cv.resize(i, (32, 32))
         x = x[n.newaxis, ...]
         x_ls.append(x)
     data_x = n.concatenate(x_ls)
 
-    data_x = data_x
-    data_y = data_y
+    data_x = data_x#[(data_y==0)|(data_y==1)|(data_y==2)|(data_y==3)|(data_y==4)|(data_y==5)|(data_y==6)]
+    data_y = data_y#[(data_y==0)|(data_y==1)|(data_y==2)|(data_y==3)|(data_y==4)|(data_y==5)|(data_y==6)]
 
-    data_y = one_hot_encoding(data_y, 10)
+    cls = n.max(data_y) + 1
+    data_y = one_hot_encoding(data_y, cls)
 
     return data_x, data_y
 
@@ -79,7 +81,7 @@ def test2():
     data_x = data_x[:, n.newaxis, ...]
     data_x = data_x / 255
 
-    n_samples = 5000
+    n_samples = 1000
     data_x = data_x[:n_samples]
     data_y = data_y[:n_samples]
 
@@ -88,25 +90,34 @@ def test2():
 
     out_c = data_y.shape[-1]
 
-    lr = 1e-2
+    lr = 1e-3
     batch_size = 24
     epochs = 1000
-    epochs_show = 5
+    epochs_show = 10
 
-    ts_kernels1 = Tensor(n.random.randn(4, 1, 3, 3) / 5, is_grad=True)
+    ts_kernels1 = Tensor(n.random.randn(4, 1, 2, 2) / n.sqrt(4+1), is_grad=True)
     ts_bias1 = Tensor(n.zeros((4,)), is_grad=True)
-    ts_kernels2 = Tensor(n.random.randn(4, 4, 3, 3) / 8, is_grad=True)
-    ts_bias2 = Tensor(n.zeros((4,)), is_grad=True)
-    ts_weights3 = Tensor(n.random.randn(400, out_c) / n.sqrt(400 + out_c), is_grad=True)
+    ts_kernels2 = Tensor(n.random.randn(8, 4, 2, 2) / n.sqrt(8+4), is_grad=True)
+    ts_bias2 = Tensor(n.zeros((8,)), is_grad=True)
+
+    ts_kernels4 = Tensor(n.random.randn(16, 8, 2, 2) / n.sqrt(16+8), is_grad=True)
+    ts_bias4 = Tensor(n.zeros((16,)), is_grad=True)
+
+    ts_kernels5 = Tensor(n.random.randn(32, 16, 3, 3) / n.sqrt(32+16), is_grad=True)
+    ts_bias5 = Tensor(n.zeros((32,)), is_grad=True)
+
+    ts_weights3 = Tensor(n.random.randn(32*4*4, out_c) / n.sqrt(32*4*4 + out_c), is_grad=True)
     ts_bias3 = Tensor(n.zeros((out_c, )), is_grad=True)
     c = Tensor(n.array([1 / batch_size, ]))
 
     batch_i = n.random.randint(0, n_samples, batch_size)
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y1 = Sigmoid(Conv2d(ts_batch_x, ts_kernels1, ts_bias1)())()
-    y2 = Sigmoid(Conv2d(y1, ts_kernels2, ts_bias2)())()
-    y3 = Flatten(y2)()
+    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()      # 16
+    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()              # 8
+    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()              # 4
+    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()                                 # 4
+    y3 = Flatten(y7)()
     y4 = y3 @ ts_weights3 + ts_bias3
     y5 = Sigmoid(y4)()
     loss = c * (ts_batch_y - y5) * (ts_batch_y - y5)
@@ -116,14 +127,14 @@ def test2():
     for i in range(epochs):
 
         batch_i = n.random.randint(0, n_samples, batch_size)
-        # ts_batch_x = Tensor(data_x[batch_i])
-        # ts_batch_y = Tensor(data_y[batch_i])
         ts_batch_x = ts_data_x[batch_i]
         ts_batch_y = ts_data_y[batch_i]
 
-        y1 = Sigmoid(Conv2d(ts_batch_x, ts_kernels1, ts_bias1)())()
-        y2 = Sigmoid(Conv2d(y1, ts_kernels2, ts_bias2)())()
-        y3 = Flatten(y2)()
+        y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()  # 16
+        y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
+        y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
+        y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
+        y3 = Flatten(y7)()
         y4 = y3 @ ts_weights3 + ts_bias3
         y5 = Sigmoid(y4)()
         loss = c * (ts_batch_y - y5) * (ts_batch_y - y5)
@@ -132,10 +143,15 @@ def test2():
 
         ts_kernels1.arr += adam(ts_kernels1.arr, ts_kernels1.grad, lr, i+1)
         ts_kernels2.arr += adam(ts_kernels2.arr, ts_kernels2.grad, lr, i+1)
-        ts_weights3.arr += adam(ts_weights3.arr, ts_weights3.grad, lr, i+1)
+        ts_kernels4.arr += adam(ts_kernels4.arr, ts_kernels4.grad, lr, i + 1)
+        ts_kernels5.arr += adam(ts_kernels5.arr, ts_kernels5.grad, lr, i + 1)
         ts_bias1.arr += adam(ts_bias1.arr, ts_bias1.grad, lr, i+1)
         ts_bias2.arr += adam(ts_bias2.arr, ts_bias2.grad, lr, i+1)
-        ts_bias3.arr += adam(ts_bias3.arr, ts_bias3.grad, lr, i+1)
+        ts_bias4.arr += adam(ts_bias4.arr, ts_bias4.grad, lr, i + 1)
+        ts_bias5.arr += adam(ts_bias5.arr, ts_bias5.grad, lr, i + 1)
+
+        ts_weights3.arr += adam(ts_weights3.arr, ts_weights3.grad, lr, i + 1)
+        ts_bias3.arr += adam(ts_bias3.arr, ts_bias3.grad, lr, i + 1)
 
         ts_kernels1.grad_zeros()
         ts_bias1.grad_zeros()
@@ -143,16 +159,22 @@ def test2():
         ts_bias2.grad_zeros()
         ts_weights3.grad_zeros()
         ts_bias3.grad_zeros()
+        ts_kernels4.grad_zeros()
+        ts_bias4.grad_zeros()
+        ts_kernels5.grad_zeros()
+        ts_bias5.grad_zeros()
 
         if (i+1) % epochs_show == 0:
             print('{} loss - {}'.format(i + 1, n.sum(loss.arr)))
 
-    batch_i = n.random.randint(0, n_samples, batch_size)
+    batch_i = n.array(range(32))
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y1 = Sigmoid(Conv2d(ts_batch_x, ts_kernels1, ts_bias1)())()
-    y2 = Sigmoid(Conv2d(y1, ts_kernels2, ts_bias2)())()
-    y3 = Flatten(y2)()
+    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()  # 16
+    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
+    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
+    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
+    y3 = Flatten(y7)()
     y4 = y3 @ ts_weights3 + ts_bias3
     y5 = Sigmoid(y4)()
 
@@ -161,6 +183,12 @@ def test2():
     ls2 = [n.argmax(i) for i in y5.arr]
     print(ls1)
     print(ls2)
+    print()
+    acc = accuracy_score(ls1, ls2)
+    print('acc - {}'.format(n.round(acc, 3)))
+
+    # 全连接16个单元,训练卷积层   acc = 0.781
+    # 全连接16个单元,不训练卷积层  acc = 0.156
 
 
 if __name__ == '__main__':
