@@ -39,7 +39,7 @@ class Flatten:
 
     def __call__(self):
         import functools
-        z = self.x.Reshape((self.x_shape[0], functools.reduce(lambda x, y: x * y, self.x_shape[1:])))
+        z = self.x.reshape((self.x_shape[0], functools.reduce(lambda x, y: x * y, self.x_shape[1:])))
         return z
 
 
