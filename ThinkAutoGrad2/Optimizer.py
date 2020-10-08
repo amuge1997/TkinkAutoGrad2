@@ -1,3 +1,4 @@
+from .Tensor import Tensor
 import numpy as n
 
 
@@ -11,6 +12,13 @@ class Adam:
         self.lr = lr
 
     def run(self, w):
+        if isinstance(w, list):
+            for i in w:
+                self.run_(i)
+        elif isinstance(w, Tensor):
+            self.run_(w)
+
+    def run_(self, w):
         # type(w) = Tensor
         w_id = id(w)
         dc = self.dc
@@ -21,22 +29,19 @@ class Adam:
         arr = w.arr
         grad = w.grad
         if w_id not in dc:
-            epoch = 1
             dc[w_id] = {
                 'epoch': 0,
                 's': n.zeros(w.shape),
                 'r': n.zeros(w.shape)
             }
-        else:
-            epoch = dc[w_id]['epoch']
         w_dc = dc[w_id]
 
         w_dc['epoch'] += 1
         w_dc['s'] = p1 * w_dc['s'] + (1 - p1) * grad
         w_dc['r'] = p2 * w_dc['r'] + (1 - p2) * grad ** 2
 
-        s = w_dc['s'] / (1 - p1 ** epoch)
-        r = w_dc['r'] / (1 - p2 ** epoch)
+        s = w_dc['s'] / (1 - p1 ** w_dc['epoch'])
+        r = w_dc['r'] / (1 - p2 ** w_dc['epoch'])
 
         arr += - lr * s / (n.sqrt(r) + e)
 

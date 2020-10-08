@@ -1,4 +1,6 @@
 import numpy as n
+n.random.seed(0)
+
 from ThinkAutoGrad2.Conv2d import Conv2d
 from ThinkAutoGrad2.Utils import Flatten
 from ThinkAutoGrad2.Tensor import Tensor
@@ -86,6 +88,12 @@ def test2():
     ts_bias3 = Tensor(n.zeros((out_c, )), is_grad=True)
     c = Tensor(n.array([1 / batch_size, ]))
 
+    weights_list = [
+        ts_kernels1, ts_bias1, ts_kernels2, ts_bias2,
+        ts_kernels4, ts_bias4, ts_kernels5, ts_bias5,
+        ts_weights3, ts_bias3
+    ]
+
     batch_i = n.random.randint(0, n_samples, batch_size)
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
@@ -119,18 +127,7 @@ def test2():
 
         loss.backward(g)
 
-        adam.run(ts_kernels1)
-        adam.run(ts_kernels2)
-        adam.run(ts_kernels4)
-        adam.run(ts_kernels5)
-
-        adam.run(ts_bias1)
-        adam.run(ts_bias2)
-        adam.run(ts_bias4)
-        adam.run(ts_bias5)
-
-        adam.run(ts_weights3)
-        adam.run(ts_bias3)
+        adam.run(weights_list)
 
         ts_kernels1.grad_zeros()
         ts_bias1.grad_zeros()
@@ -169,8 +166,8 @@ def test2():
     # 全连接16个单元,训练卷积层   acc = 0.781
     # 全连接16个单元,不训练卷积层  acc = 0.156
 
-    # 函数adam 0.20902830362319946
-    # 类adam   0.2052224576473236
+    # 函数adam 1.3331531286239624 0.20902830362319946
+    # 类adam   1.3331531286239624 0.2090282142162323
 
 
 if __name__ == '__main__':
