@@ -39,7 +39,7 @@ def load_data():
 
     x_ls = []
     for i in data_x:
-        x = cv.resize(i, (32, 32))
+        x = cv.resize(i, (32, 48))
         x = x[n.newaxis, ...]
         x_ls.append(x)
     data_x = n.concatenate(x_ls)
@@ -73,7 +73,7 @@ def test2():
     epochs = 200
     epochs_show = 10
 
-    ts_kernels1 = Tensor(n.random.randn(4, 1, 2, 2) / n.sqrt(4+1), is_grad=True)
+    ts_kernels1 = Tensor(n.random.randn(4, 1, 3, 2) / n.sqrt(4+1), is_grad=True)
     ts_bias1 = Tensor(n.zeros((4,)), is_grad=True)
     ts_kernels2 = Tensor(n.random.randn(8, 4, 2, 2) / n.sqrt(8+4), is_grad=True)
     ts_bias2 = Tensor(n.zeros((8,)), is_grad=True)
@@ -97,7 +97,7 @@ def test2():
     batch_i = n.random.randint(0, n_samples, batch_size)
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()      # 16
+    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()      # 16
     y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()              # 8
     y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()              # 4
     y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()                                 # 4
@@ -116,7 +116,7 @@ def test2():
         ts_batch_x = ts_data_x[batch_i]
         ts_batch_y = ts_data_y[batch_i]
 
-        y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()  # 16
+        y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()  # 16
         y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
         y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
         y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
@@ -146,7 +146,7 @@ def test2():
     batch_i = n.array(range(32))
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()  # 16
+    y1 = Relu(Conv2d(ts_batch_x, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()  # 16
     y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
     y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
     y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4

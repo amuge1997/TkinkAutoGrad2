@@ -31,62 +31,62 @@ def matmul_forward(features_col, kernels_col, bias, out_hw):
 
 # 未测试
 def grad_col_to_kel(grad_kernels_col, in_channels, kernel_size):
+    kernel_height, kernel_width = kernel_size
     output_channels = grad_kernels_col.shape[0]
-    grad_kernels = n.reshape(grad_kernels_col, [output_channels, in_channels, kernel_size, kernel_size])
+    grad_kernels = n.reshape(grad_kernels_col, [output_channels, in_channels, kernel_height, kernel_width])
     return grad_kernels
 
 
 # 已测试
 def kel_to_col(kernels):
     kernels = n.float32(kernels)
-    out_channels, in_channels, kernel_size1, kernel_size2 = kernels.shape
-    if kernel_size1 != kernel_size2:
-        raise Exception('错误')
-    kernel_size = kernel_size1
-    ret = n.reshape(kernels, [out_channels, in_channels * kernel_size * kernel_size])
+    out_channels, in_channels, kernel_height, kernel_width = kernels.shape
+    ret = n.reshape(kernels, [out_channels, in_channels * kernel_height * kernel_width])
     return ret
 
 
 # 应该没问题
 def grad_col_to_img(features_col, kernel_size, in_channels, in_shape, out_shape, stride):
+    kernel_height, kernel_width = kernel_size
     n_samples = features_col.shape[0]
     ih = features_col.shape[1]
-    height, width = in_shape
-    sum_h, sum_w = out_shape
+    in_height, in_width = in_shape
+    out_height, out_width = out_shape
     stride_h, stride_w = stride
-    ret = n.zeros((n_samples, in_channels, height, width))
+    ret = n.zeros((n_samples, in_channels, in_height, in_width))
     for ihi in range(ih):
         patch = features_col[:, ihi, :]
-        patch = n.reshape(patch, [n_samples, in_channels, kernel_size, kernel_size])
-        hi = int(ihi / sum_w)
-        wi = ihi % sum_w
+        patch = n.reshape(patch, [n_samples, in_channels, kernel_height, kernel_width])
+        hi = int(ihi / out_width)
+        wi = ihi % out_width
         anchor_h = hi * stride_h
         anchor_w = wi * stride_w
-        ret[:, :, anchor_h:anchor_h+kernel_size, anchor_w:anchor_w+kernel_size] = patch
+        ret[:, :, anchor_h:anchor_h+kernel_height, anchor_w:anchor_w+kernel_width] = patch
     return ret
 
 
 # 将图像转为向量
 def img_to_col(features, kernel_size, stride):
+    kernel_height, kernel_width = kernel_size
     stride_height, stride_width = stride
     n_samples, channels, in_height, in_width = features.shape
-    height_able = in_height - kernel_size + 1
-    width_able = in_width - kernel_size + 1
+    height_able = in_height - kernel_height + 1
+    width_able = in_width - kernel_width + 1
     if (height_able - 1) % stride_height != 0 or (width_able - 1) % stride_width != 0:
         raise Exception('error')
-    sum_h = int((height_able - 1) / stride_height) + 1
-    sum_w = int((width_able - 1) / stride_width) + 1
-    ret = n.zeros((n_samples, sum_h * sum_w, kernel_size**2 * channels))
-    for hi in range(sum_h):
-        for wi in range(sum_w):
+    out_height = int((height_able - 1) / stride_height) + 1
+    out_width = int((width_able - 1) / stride_width) + 1
+    ret = n.zeros((n_samples, out_height * out_width, kernel_height * kernel_width * channels))
+    for hi in range(out_height):
+        for wi in range(out_width):
             h_anchor = hi * stride_height
             w_anchor = wi * stride_width
-            patch = features[:, :, h_anchor:h_anchor+kernel_size, w_anchor:w_anchor+kernel_size]
+            patch = features[:, :, h_anchor:h_anchor+kernel_height, w_anchor:w_anchor+kernel_width]
             patch = n.reshape(patch, [n_samples, 1, -1])
-            ihi = hi * sum_w + wi
+            ihi = hi * out_width + wi
             ret[:, ihi:ihi+1, :] = patch
-    out_height = sum_h
-    out_width = sum_w
+    out_height = out_height
+    out_width = out_width
     out_hw = (out_height, out_width)
     return ret, out_hw
 
@@ -112,10 +112,11 @@ def re_padding2d(image, pad):
 
 # 可靠
 def padding2d(image, kernel_size, stride_hw):
+    kernel_height, kernel_width = kernel_size
     stride_h, stride_w = stride_hw
     n_samples, channels, output_height, output_width = image.shape
-    input_height = output_height * stride_h - stride_h + kernel_size
-    input_width = output_width * stride_w - stride_w + kernel_size
+    input_height = output_height * stride_h - stride_h + kernel_height
+    input_width = output_width * stride_w - stride_w + kernel_width
     pad_sum = input_height - output_height
     pad_half1 = int(pad_sum / 2)
     pad_half2 = pad_sum - pad_half1
@@ -151,14 +152,15 @@ class Conv2d:
         kernel_shape = kernels.shape
         k_o, k_i, k_h, k_w = kernel_shape
         # 假设k_h和k_w相等
-        kernel_size = k_h
+        # kernel_size = k_h
 
         input_shape = in_features.shape
         n_samples, in_channels, in_height, in_width = input_shape
 
         # 已使用
         self.in_channels = in_channels      # 输入通道
-        self.kernel_size = kernel_size      # 核尺寸
+        # self.kernel_size = kernel_size      # 核尺寸
+        self.kernel_size = (k_h, k_w)
         self.stride_hw = stride             # 步长
         self.is_padding = is_padding
         self.pad_in_features = None         # 补零后的输入
