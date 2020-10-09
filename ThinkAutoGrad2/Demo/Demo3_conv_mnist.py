@@ -131,16 +131,8 @@ def test2():
 
         adam.run(weights_list)
 
-        ts_kernels1.grad_zeros()
-        ts_bias1.grad_zeros()
-        ts_kernels2.grad_zeros()
-        ts_bias2.grad_zeros()
-        ts_weights3.grad_zeros()
-        ts_bias3.grad_zeros()
-        ts_kernels4.grad_zeros()
-        ts_bias4.grad_zeros()
-        ts_kernels5.grad_zeros()
-        ts_bias5.grad_zeros()
+        for w in weights_list:
+            w.grad_zeros()
 
         if (i+1) % epochs_show == 0:
             print('{} loss - {}'.format(i + 1, n.sum(loss.arr)))
