@@ -1,14 +1,7 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Model import Model
-from ThinkAutoGrad2.Backward import backward
-from ThinkAutoGrad2.Losses import MSE
-from ThinkAutoGrad2.Conv2d import Conv2d
-from ThinkAutoGrad2.Utils import Flatten
-from ThinkAutoGrad2.Tensor import Tensor
-from ThinkAutoGrad2.Activate import Sigmoid, Relu
-from ThinkAutoGrad2.Optimizer import Adam
+from ThinkAutoGrad2.Core import Model, backward, MSE, Conv2d, Flatten, Tensor, Sigmoid, Relu, Adam
 from sklearn.metrics import accuracy_score
 
 
@@ -38,10 +31,10 @@ class Net(Model):
 
     def forward(self, inps):
         ts_kernels1, ts_bias1, ts_kernels2, ts_bias2, ts_kernels4, ts_bias4, ts_kernels5, ts_bias5, ts_weights3, ts_bias3 = self.weights_list
-        y1 = Relu(Conv2d(inps, ts_kernels1, ts_bias1, stride=(2, 2), is_padding=False)())()  # 16
-        y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
-        y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
-        y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
+        y1 = Relu(Conv2d(inps, ts_kernels1, ts_bias1, stride=(2, 2))())()  # 16
+        y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
+        y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
+        y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
         y3 = Flatten(y7)()
         y4 = y3 @ ts_weights3 + ts_bias3
         y5 = Sigmoid(y4)()

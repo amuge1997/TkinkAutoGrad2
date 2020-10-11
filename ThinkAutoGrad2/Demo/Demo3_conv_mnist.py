@@ -98,10 +98,10 @@ def test2():
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
     y0 = UpSample2d(ts_batch_x, stride=(2, 2))()
-    y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()      # 16
-    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()              # 8
-    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()              # 4
-    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()                                 # 4
+    y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
+    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
+    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
+    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
     y3 = Flatten(y7)()
     y4 = y3 @ ts_weights3 + ts_bias3
     y5 = Sigmoid(y4)()
@@ -118,10 +118,10 @@ def test2():
         ts_batch_y = ts_data_y[batch_i]
 
         y0 = UpSample2d(ts_batch_x, stride=(2, 2))()
-        y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()  # 16
-        y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
-        y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
-        y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
+        y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
+        y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
+        y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
+        y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
         y3 = Flatten(y7)()
         y4 = y3 @ ts_weights3 + ts_bias3
         y5 = Sigmoid(y4)()
@@ -141,10 +141,10 @@ def test2():
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
     y0 = UpSample2d(ts_batch_x, stride=(2, 2))()
-    y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2), is_padding=False)())()  # 16
-    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2), is_padding=False)())()  # 8
-    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2), is_padding=False)())()  # 4
-    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1))())()  # 4
+    y1 = Relu(Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
+    y2 = Relu(Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
+    y6 = Relu(Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
+    y7 = Relu(Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
     y3 = Flatten(y7)()
     y4 = y3 @ ts_weights3 + ts_bias3
     y5 = Sigmoid(y4)()

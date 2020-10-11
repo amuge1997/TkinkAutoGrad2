@@ -43,6 +43,7 @@ class Flatten:
         return z
 
 
+# 1级测试
 class UpSample2d:
     def __init__(self, x, stride):
         self.x = x

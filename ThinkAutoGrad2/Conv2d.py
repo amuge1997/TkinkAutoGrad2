@@ -131,7 +131,7 @@ def padding2d(image, kernel_size, stride_hw):
 
 #
 class Conv2d:
-    def __init__(self, in_features, kernels, bias, stride=(1, 1), is_padding=True):
+    def __init__(self, in_features, kernels, bias, stride=(1, 1), is_padding=False):
 
         # in_features.shape = n_samples, in_channels, in_height, in_width
         # kernel.shape = out_channels, in_channels, kernel_size, kernel_size
