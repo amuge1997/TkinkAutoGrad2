@@ -5,7 +5,7 @@ from .Check import grad_outs_check
 from .Tensor import Tensor
 
 
-# 已测试,应该没问题
+# 测试
 def matmul_backward(grad, features_col, kernels_col):
     n_samples, channels, height, width = grad.shape
     grad = n.reshape(grad, [n_samples, channels, height * width])
@@ -18,7 +18,7 @@ def matmul_backward(grad, features_col, kernels_col):
     return grad_feature_col, grad_kernel_col, grad_bias
 
 
-# 已测试
+# 测试
 def matmul_forward(features_col, kernels_col, bias, out_hw):
     out_height, out_width = out_hw
     n_samples = features_col.shape[0]
@@ -29,7 +29,7 @@ def matmul_forward(features_col, kernels_col, bias, out_hw):
     return ret
 
 
-# 未测试
+# 测试
 def grad_col_to_kel(grad_kernels_col, in_channels, kernel_size):
     kernel_height, kernel_width = kernel_size
     output_channels = grad_kernels_col.shape[0]
@@ -37,7 +37,7 @@ def grad_col_to_kel(grad_kernels_col, in_channels, kernel_size):
     return grad_kernels
 
 
-# 已测试
+# 测试
 def kel_to_col(kernels):
     kernels = n.float32(kernels)
     out_channels, in_channels, kernel_height, kernel_width = kernels.shape
@@ -45,7 +45,7 @@ def kel_to_col(kernels):
     return ret
 
 
-# 应该没问题
+# 测试
 def grad_col_to_img(features_col, kernel_size, in_channels, in_shape, out_shape, stride):
     kernel_height, kernel_width = kernel_size
     n_samples = features_col.shape[0]
@@ -91,7 +91,7 @@ def img_to_col(features, kernel_size, stride):
     return ret, out_hw
 
 
-# 可靠
+# 去除补零
 def re_padding2d(image, pad):
     pad_h, pad_w = pad
     h0 = pad_h[0]
@@ -110,7 +110,7 @@ def re_padding2d(image, pad):
     return image[:, :, hs, ws]
 
 
-# 可靠
+# 补零
 def padding2d(image, kernel_size, stride_hw):
     kernel_height, kernel_width = kernel_size
     stride_h, stride_w = stride_hw
@@ -129,7 +129,7 @@ def padding2d(image, kernel_size, stride_hw):
     return ret, pad_h, pad_w
 
 
-#
+# 卷积
 class Conv2d:
     def __init__(self, in_features, kernels, bias, stride=(1, 1), is_padding=False):
 
@@ -151,15 +151,12 @@ class Conv2d:
 
         kernel_shape = kernels.shape
         k_o, k_i, k_h, k_w = kernel_shape
-        # 假设k_h和k_w相等
-        # kernel_size = k_h
 
         input_shape = in_features.shape
         n_samples, in_channels, in_height, in_width = input_shape
 
         # 已使用
         self.in_channels = in_channels      # 输入通道
-        # self.kernel_size = kernel_size      # 核尺寸
         self.kernel_size = (k_h, k_w)
         self.stride_hw = stride             # 步长
         self.is_padding = is_padding
@@ -225,77 +222,6 @@ class Conv2d:
         gard_features = re_padding2d(gard_features, self.pad)
         gz = (gard_features, grad_kernels, grad_bias)
         return gz
-
-
-if __name__ == '__main__':
-
-    # main3()
-
-    # from SB_MNIST import load_MNIST
-    # data_x, data_y = load_MNIST()
-
-    # print(data_x.shape)
-    #
-    # one = n.float32(data_x[0][n.newaxis, n.newaxis, ...])
-    #
-    # conv = Conv2d(3, 1, 2)
-    # x = conv.forward(one)
-    # print(x.shape, x.dtype)
-
-    # inps = n.array(
-    #     [
-    #         [
-    #             [
-    #                 [5, 2, 1, 2],
-    #                 [3, 4, 3, 4],
-    #             ],
-    #             [
-    #                 [1, 2, 1, 2],
-    #                 [3, 4, 3, 4],
-    #             ],
-    #         ],
-    #         [
-    #             [
-    #                 [1, 2, 9, 2],
-    #                 [3, 4, 3, 4],
-    #             ],
-    #             [
-    #                 [1, 2, 1, 2],
-    #                 [3, 4, 3, 4],
-    #             ],
-    #         ],
-    #     ]
-    # )
-    # print(inps.shape)
-    #
-    # mp = MaxPool2D()
-    # mp.forward(inps)
-    #
-    # grads = mp.backward(n.ones((2, 2, 1, 2)))
-    # print(grads)
-
-    pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
