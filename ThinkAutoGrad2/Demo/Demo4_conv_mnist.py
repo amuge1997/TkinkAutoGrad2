@@ -88,7 +88,7 @@ def test2():
 
     lr = 1e-3
     batch_size = 24
-    epochs = 500
+    epochs = 200
     epochs_show = 10
 
     net = Net(out_c)
