@@ -14,6 +14,8 @@ class Model:
     def forward(self, inps):
         pass
 
+    def __call__(self, inps):
+        return self.forward(inps)
 
 
 

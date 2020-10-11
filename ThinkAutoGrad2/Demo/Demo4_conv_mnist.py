@@ -101,7 +101,7 @@ def test2():
         ts_batch_x = ts_data_x[batch_i]
         ts_batch_y = ts_data_y[batch_i]
 
-        predict_y = net.forward(ts_batch_x)
+        predict_y = net(ts_batch_x)
         loss = mse(predict_y, ts_batch_y)
         backward(loss)
 
@@ -114,7 +114,7 @@ def test2():
     batch_i = n.array(range(32))
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    predict_y = net.forward(ts_batch_x)
+    predict_y = net(ts_batch_x)
 
     print()
     ls1 = [n.argmax(i) for i in ts_batch_y.arr]
