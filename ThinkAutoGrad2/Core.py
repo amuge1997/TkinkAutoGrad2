@@ -4,14 +4,9 @@ from .Backward import backward
 
 
 class Activate:
-    from .Activate import Sigmoid, Relu
-    Sigmoid = Sigmoid
+    from .Activate import Relu, Sigmoid
     Relu = Relu
-
-
-class Optimizer:
-    from .Optimizer import Adam
-    Adam = Adam
+    Sigmoid = Sigmoid
 
 
 class Layers:
@@ -21,14 +16,22 @@ class Layers:
     UpSample2d = UpSample2d
 
 
+class Losses:
+    from .Losses import MSE
+    MSE = MSE
+
+
+class Optimizer:
+    from .Optimizer import Adam
+    Adam = Adam
+
+
 class Utils:
     from .Utils import Concat
     Concat = Concat
 
 
-class Losses:
-    from .Losses import MSE
-    MSE = MSE
+
 
 
 

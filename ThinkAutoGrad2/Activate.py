@@ -6,22 +6,6 @@ import numpy as n
 # 激活函数
 
 
-# 3级测试
-class Sigmoid:
-    def __init__(self, x):
-        self.x = x
-        self.x_shape = x.arr.shape
-
-    def __call__(self):
-        z = Tensor(1 / (1 + n.exp(- self.x.arr)), self, (self.x,))
-        return z
-
-    @grad_outs_check
-    def backward(self, grad):
-        gz = grad * (1 / (1 + n.exp(- self.x.arr))) * (1 - 1 / (1 + n.exp(- self.x.arr)))
-        return (gz,)
-
-
 # 0级测试
 class Relu:
     def __init__(self, x):
@@ -38,11 +22,20 @@ class Relu:
         return (gz,)
 
 
+# 3级测试
+class Sigmoid:
+    def __init__(self, x):
+        self.x = x
+        self.x_shape = x.arr.shape
 
+    def __call__(self):
+        z = Tensor(1 / (1 + n.exp(- self.x.arr)), self, (self.x,))
+        return z
 
-
-
-
+    @grad_outs_check
+    def backward(self, grad):
+        gz = grad * (1 / (1 + n.exp(- self.x.arr))) * (1 - 1 / (1 + n.exp(- self.x.arr)))
+        return (gz,)
 
 
 
