@@ -13,6 +13,7 @@ class RNN(RecurrentNN):
         # u.shape = in_dims, hi_dims
         # w.shape = hi_dims, hi_dims
         # v.shape = hi_dims, ou_dims
+        # b.shape = hi_dims
         self.x = x
         self.h = h
         self.u = u
