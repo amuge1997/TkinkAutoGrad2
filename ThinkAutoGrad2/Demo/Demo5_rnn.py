@@ -1,7 +1,7 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import RNN, backward, Optimizer, Losses, Tensor
+from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers
 
 
 if __name__ == '__main__':
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
 
-        yp, oh = RNN.RNN(x, h, u, w, v, b)()
+        yp, oh = Layers.RNN(x, h, u, w, v, b)()
         loss = mse(yp, y)
 
         backward(loss)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
-        y, oh = RNN.RNN(x, h, u, w, v, b)()
+        y, oh = Layers.RNN(x, h, u, w, v, b)()
         yp_arr[i] = y.arr[0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]
 

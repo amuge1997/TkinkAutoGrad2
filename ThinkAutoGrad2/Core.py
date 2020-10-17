@@ -10,20 +10,17 @@ class Activate:
 
 
 class Layers:
-    from .Layers import Conv2d, Flatten, UpSample2d
+    from .Layers import Conv2d, Flatten, LSTM, RNN, UpSample2d
     Conv2d = Conv2d
     Flatten = Flatten
+    LSTM = LSTM
+    RNN = RNN
     UpSample2d = UpSample2d
 
 
 class Losses:
     from .Losses import MSE
     MSE = MSE
-
-
-class RNN:
-    from .RNN import RNN
-    RNN = RNN
 
 
 class Optimizer:

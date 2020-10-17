@@ -2,6 +2,7 @@ from .Tensor import Tensor
 import numpy as n
 from .Check import grad_outs_check
 from .Conv2d import Conv2d
+from .RNN import RNN, LSTM
 
 
 # 0级测试
