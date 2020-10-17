@@ -21,6 +21,11 @@ class Losses:
     MSE = MSE
 
 
+class RNN:
+    from .RNN import RNN
+    RNN = RNN
+
+
 class Optimizer:
     from .Optimizer import Adam
     Adam = Adam

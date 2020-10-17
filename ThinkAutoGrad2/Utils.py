@@ -10,7 +10,7 @@ class Concat:
         self.axis = axis
 
     def __call__(self):
-        z = Tensor(n.concatenate([i.arr for i in self.xls]), self, self.xls)
+        z = Tensor(n.concatenate([i.arr for i in self.xls], self.axis), self, self.xls)
         return z
 
     @grad_outs_check

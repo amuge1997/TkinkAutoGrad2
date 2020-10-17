@@ -38,6 +38,25 @@ class Sigmoid:
         return (gz,)
 
 
+# 0级测试
+class Tanh:
+    def __init__(self, x):
+        self.x = x
+        self.x_shape = x.arr.shape
+
+    @staticmethod
+    def tanh(arr):
+        return (n.exp(arr) - n.exp(-arr)) / (n.exp(arr) + n.exp(-arr))
+
+    def __call__(self):
+        z = Tensor(self.tanh(self.x.arr), self, (self.x,))
+        return z
+
+    @grad_outs_check
+    def backward(self, grad):
+        gz = grad * (1 - self.tanh(self.x.arr) * self.tanh(self.x.arr))
+        return (gz,)
+
 
 
 
