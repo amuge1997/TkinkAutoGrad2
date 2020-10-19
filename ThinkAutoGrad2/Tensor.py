@@ -17,8 +17,8 @@ from .Check import grad_outs_check
 class Tensor:
     def __init__(self, arr, opt=None, ts_tp=tuple(), is_grad=False):
         self.shape = arr.shape
-        self.arr = n.float32(arr)
-        self.grad = n.float32(n.zeros(self.shape))
+        self.arr = arr.astype('float32')
+        self.grad = n.zeros(self.shape).astype('float32')
         self.opt = opt          # 算子
         self.ts_ls = ts_tp      # 子元组
         self.is_grad = is_grad  # 是否记录梯度
@@ -43,16 +43,19 @@ class Tensor:
     
     def __getitem__(self, sc):
         return Slice(self, sc).forward()
+
+    def copy(self):
+        return copy(self.arr)
     
     def reshape(self, new_s):
         return Reshape(self, new_s).forward()
     
     def transpose(self, new_s):
         return Transpose(self, new_s).forward()
-    
+
     def grad_zeros(self):
         self.grad = n.float32(n.zeros(self.shape))
-    
+
     def backward(self, grad):
         
         if self.is_grad:
@@ -305,6 +308,11 @@ class Matmul(Operator):
                 gx = n.sum(gx, axis=0)
         ret = (gx, gy)
         return ret
+
+
+# 2级测试
+def copy(arr):
+    return Tensor(arr)
 
 
 # 1级测试

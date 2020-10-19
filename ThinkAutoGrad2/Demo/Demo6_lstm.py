@@ -7,21 +7,28 @@ from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers
 if __name__ == '__main__':
 
     hidden_size = 8
-    u = Tensor(n.random.randn(1, hidden_size)/n.sqrt(hidden_size + 1), is_grad=True)
-    w = Tensor(n.random.randn(hidden_size, hidden_size)/n.sqrt(hidden_size + hidden_size), is_grad=True)
-    v = Tensor(n.random.randn(hidden_size, 1)/n.sqrt(hidden_size + 1), is_grad=True)
-    b = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    wf = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
+    bf = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    wi = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
+    bi = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    wc = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
+    bc = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    wo = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
+    bo = Tensor(n.zeros(hidden_size, ), is_grad=True)
+
+    v = Tensor(n.random.randn(hidden_size, 1) / n.sqrt(hidden_size + 1), is_grad=True)
 
     t = n.linspace(0, 10, 100)
     sin_x = n.sin(t)
     max_time_step = sin_x.shape[0]
 
     batch = 1
-    time_step = 30
-    epoch = 300
+    time_step = 10
+    epoch = 1000
     mse = Losses.MSE()
     adam = Optimizer.Adam(1e-3)
     h = Tensor(n.zeros((batch, hidden_size)))
+    c = Tensor(n.zeros((batch, hidden_size)))
     loss_record = []
     for i in range(epoch):
         x_ls = []   # 输入
@@ -39,24 +46,23 @@ if __name__ == '__main__':
         y = n.concatenate(y_ls)
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
-
-        oh = Layers.RNN(x, h, u, w, b)()
+        oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
         yp = oh @ v
         loss = mse(yp, y)
 
         backward(loss)
-        adam.run([u, w, v])
+        adam.run([wf, bf, wi, bi, wc, bc, wo, bo, v])
 
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
 
-    h = Tensor(n.zeros((1, hidden_size)))
+    h = Tensor(n.zeros((batch, hidden_size)))
     yp_n = max_time_step - time_step
     yp_arr = n.zeros((yp_n, 1))
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
-        oh = Layers.RNN(x, h, u, w, b)()
+        oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
         y = oh @ v
         yp_arr[i] = y.arr[0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]
@@ -73,6 +79,13 @@ if __name__ == '__main__':
     p.plot(loss_record, c='blue')
 
     p.show()
+
+
+
+
+
+
+
 
 
 
