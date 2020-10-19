@@ -99,7 +99,7 @@ class LSTMCell:
         ot = Sigmoid(hx @ wo + bo)()
         ht = ot * Tanh(ct)()
         self.ht_ct = Concat([ht, ct], 1)()
-        z = Tensor(self.ht_ct.arr, self, (self.x,  self.hc,
+        z = Tensor(self.ht_ct.arr, self, (self.x,  self.hc,     # hc(h和c合并)是复杂度为O(n)的关键
                                           self.wf, self.bf,
                                           self.wi, self.bi,
                                           self.wc, self.bc,
