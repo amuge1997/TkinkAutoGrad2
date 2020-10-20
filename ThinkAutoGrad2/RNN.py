@@ -153,7 +153,7 @@ class LSTM:
         self.x = x
         self.h = h
         self.c = c
-        self.hc = Concat([h, c], axis=2)()
+        self.hc = Concat([h, c], axis=2)()          # hc(h和c合并)是复杂度为O(n)的关键
         # 遗忘门
         # wf.shape = hi_dims+in_dims, ci_dims
         # bf.shape = ci_dims
