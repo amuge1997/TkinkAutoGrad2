@@ -179,7 +179,7 @@ class LSTM:
 
         tsp_hc = self.hc
         for tsp in range(time_step):
-            tsp_x = self.x[:, tsp:tsp+1, :]
+            tsp_x = self.x[:, tsp:tsp + 1, :]
             tsp_hc = LSTMCell(tsp_x, tsp_hc, self.wf, self.bf, self.wi, self.bi, self.wc, self.bc, self.wo, self.bo)()
 
         half_size = int(self.hc.shape[2] / 2)
