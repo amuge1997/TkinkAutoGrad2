@@ -1,6 +1,5 @@
-from .Tensor import Tensor
+from .Tensor import Tensor, check_grad_outs
 import numpy as n
-from .Check import grad_outs_check
 
 
 # 1级测试
@@ -13,7 +12,7 @@ class Concat:
         z = Tensor(n.concatenate([i.arr for i in self.xls], self.axis), self, self.xls)
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         shape_ls = [i.arr.shape[self.axis] for i in self.xls]
         shape_len = len(self.xls[0].arr.shape)

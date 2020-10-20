@@ -1,6 +1,5 @@
-from .Tensor import Tensor
+from .Tensor import Tensor, check_grad_outs
 import numpy as n
-from .Check import grad_outs_check
 from .Conv2d import Conv2d
 from .RNN import RNN, LSTM
 
@@ -36,7 +35,7 @@ class UpSample2d:
         z = Tensor(z, self, (self.x, ))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         n_samples, channels, grad_height, grad_width = grad.shape
         stride_h, stride_w = self.stride_hw

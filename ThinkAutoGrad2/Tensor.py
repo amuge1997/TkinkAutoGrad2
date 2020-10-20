@@ -1,5 +1,4 @@
 import numpy as n
-from .Check import grad_outs_check
 
 
 # 张量的定义与实现, 张量的算子的定义与实现, 张量的成员函数的定义与实现操作
@@ -69,6 +68,15 @@ class Tensor:
                 v.backward(grads[i])
 
 
+def check_grad_outs(func):
+    def wrap(self, grad):
+        ret = func(self, grad)
+        if not isinstance(ret, tuple):
+            raise Exception('返回的梯度必须是元组形式')
+        return ret
+    return wrap
+
+
 class Operator:
     def __init__(self, x=None, y=None):
         self.x = x
@@ -83,7 +91,7 @@ class Operator:
     def __call__(self):
         pass
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         pass
 
@@ -100,7 +108,7 @@ class Add(Operator):
         z = Tensor(arr=self.x.arr + self.y.arr, opt=self, ts_tp=(self.x, self.y))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         if len(self.x_shape) > len(self.y_shape):
             long_shape = self.x_shape
@@ -145,7 +153,7 @@ class Sub(Operator):
         z = Tensor(arr=self.x.arr - self.y.arr, opt=self, ts_tp=(self.x, self.y))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         if len(self.x_shape) > len(self.y_shape):
             long_shape = self.x_shape
@@ -190,7 +198,7 @@ class Mul(Operator):
         z = Tensor(arr=self.x.arr * self.y.arr, opt=self, ts_tp=(self.x, self.y))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         if len(self.x_shape) > len(self.y_shape):
             long_shape = self.x_shape
@@ -235,7 +243,7 @@ class Div(Operator):
         z = Tensor(arr=self.x.arr / self.y.arr, opt=self, ts_tp=(self.x, self.y))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
 
         if len(self.x_shape) > len(self.y_shape):
@@ -281,7 +289,7 @@ class Matmul(Operator):
         z = Tensor(arr=self.x.arr @ self.y.arr, opt=self, ts_tp=(self.x, self.y))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         dims = [i for i in range(len(self.y.arr.shape))]
         temp = dims[-2]
@@ -327,7 +335,7 @@ class Reshape:
         z = Tensor(n.reshape(self.x.arr, self.new_s), self, (self.x,))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         gz = n.reshape(grad, self.ori_s)
         return (gz,)
@@ -344,7 +352,7 @@ class Slice:
         z = Tensor(self.x.arr[self.sc], self, ts_tp=(self.x,))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         gz = n.float32(n.zeros(self.x_shape))
         gz[self.sc] = grad
@@ -362,7 +370,7 @@ class Transpose:
         z = Tensor(n.transpose(self.x.arr, self.s), self, (self.x,))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         now_s = self.s
         old_s = [None] * len(self.s)

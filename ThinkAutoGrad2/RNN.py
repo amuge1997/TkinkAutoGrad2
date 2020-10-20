@@ -1,39 +1,50 @@
 from .Activate import Tanh, Sigmoid
 from .Utils import Concat
-from .Check import grad_outs_check
-from .Tensor import Tensor
+from .Tensor import Tensor, check_grad_outs
 
 
 class RNN:
     def __init__(self, x, h, u, w, b):
         # x.shape = batch, time_step, in_dims
-        # h.shape = batch, hi_dims
+        # h.shape = batch, 1, hi_dims
         # u.shape = in_dims, hi_dims
         # w.shape = hi_dims, hi_dims
         # b.shape = hi_dims
+        x, h, u, w, b = self.check_rnn_inps(x, h, u, w, b)
         self.x = x
         self.h = h
         self.u = u
         self.w = w
         self.b = b
 
+    @staticmethod
+    def check_rnn_inps(x, h, u, w, b):
+        condition = [len(x.shape) == 3, len(h.shape) == 3,
+                     h.shape[1] == 1, len(u.shape) == 2,
+                     len(w.shape) == 2, len(b.shape) == 1
+                     ]
+        if False in condition:
+            raise Exception('维度错误, {}'.format(condition))
+        return x, h, u, w, b
+
     def __call__(self):
         batch, time_step = self.x.shape[0], self.x.shape[1]
-        tsp_h = self.h[:, :]
+        tsp_h = self.h
         for tsp in range(time_step):
             p1 = self.x[:, tsp:tsp+1, :] @ self.u
             p2 = tsp_h @ self.w
             p3 = p1 + p2 + self.b
             tsp_h = Tanh(p3)()
-        z = Concat(tsp_h, 0)()
+        z = tsp_h
         return z
 
 
 # 1级测试
 class LSTMCell:
     def __init__(self, x, hc, wf, bf, wi, bi, wc, bc, wo, bo):
-        # x.shape = batch, in_dims
-        # hc.shape = batch, hi_dims + ci_dims
+        x, hc, wf, bf, wi, bi, wc, bc, wo, bo = self.check_lstm_inps(x, hc, wf, bf, wi, bi, wc, bc, wo, bo)
+        # x.shape = batch, 1, in_dims
+        # hc.shape = batch, 1, hi_dims + ci_dims
         # hi_dims = ci_dims
         self.x = x
         self.hc = hc
@@ -73,6 +84,19 @@ class LSTMCell:
         self.wo_copy = self.wo.copy()
         self.bo_copy = self.bo.copy()
 
+    @staticmethod
+    def check_lstm_inps(x, hc, wf, bf, wi, bi, wc, bc, wo, bo):
+        condition = [
+            len(x.shape) == 3, len(hc.shape) == 3,
+            len(wf.shape) == 2, len(bf.shape) == 1,
+            len(wi.shape) == 2, len(bi.shape) == 1,
+            len(wc.shape) == 2, len(bc.shape) == 1,
+            len(wo.shape) == 2, len(bo.shape) == 1,
+        ]
+        if False in condition:
+            raise Exception('维度错误, {}'.format(condition))
+        return x, hc, wf, bf, wi, bi, wc, bc, wo, bo
+
     def __call__(self):
         x = self.x_copy
         hc = self.hc_copy
@@ -85,9 +109,9 @@ class LSTMCell:
         wo = self.wo_copy
         bo = self.bo_copy
 
-        half_size = int(hc.shape[1] / 2)
-        h, c = hc[:, :half_size], hc[:, half_size:]
-        hx = Concat([h, x], 1)()
+        half_size = int(hc.shape[2] / 2)
+        h, c = hc[:, :, :half_size], hc[:, :, half_size:]
+        hx = Concat([h, x], 2)()
         # 遗忘门
         ft = Sigmoid(hx @ wf + bf)()    # 遗忘比例
         ct = c * ft
@@ -98,7 +122,7 @@ class LSTMCell:
         # 输出门
         ot = Sigmoid(hx @ wo + bo)()
         ht = ot * Tanh(ct)()
-        self.ht_ct = Concat([ht, ct], 1)()
+        self.ht_ct = Concat([ht, ct], 2)()
         z = Tensor(self.ht_ct.arr, self, (self.x,  self.hc,     # hc(h和c合并)是复杂度为O(n)的关键
                                           self.wf, self.bf,
                                           self.wi, self.bi,
@@ -106,7 +130,7 @@ class LSTMCell:
                                           self.wo, self.bo))
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         self.ht_ct.backward(grad)
         gz = (
@@ -123,13 +147,13 @@ class LSTMCell:
 class LSTM:
     def __init__(self, x, h, c, wf, bf, wi, bi, wc, bc, wo, bo):
         # x.shape = batch, time_step, in_dims
-        # h.shape = batch, hi_dims
-        # c.shape = batch, ci_dims
+        # h.shape = batch, 1, hi_dims
+        # c.shape = batch, 1, ci_dims
         # hi_dims = ci_dims
         self.x = x
         self.h = h
         self.c = c
-        self.hc = Concat([h, c], axis=1)()
+        self.hc = Concat([h, c], axis=2)()
         # 遗忘门
         # wf.shape = hi_dims+in_dims, ci_dims
         # bf.shape = ci_dims
@@ -155,18 +179,18 @@ class LSTM:
 
         tsp_hc = self.hc
         for tsp in range(time_step):
-            tsp_x = self.x[:, tsp, :]  # 维度降低,去除time_step维度
+            tsp_x = self.x[:, tsp:tsp+1, :]  # 维度降低,去除time_step维度
             tsp_hc = LSTMCell(tsp_x, tsp_hc, self.wf, self.bf, self.wi, self.bi, self.wc, self.bc, self.wo, self.bo)()
 
-        half_size = int(self.hc.shape[1] / 2)
-        last_h = tsp_hc[:, :half_size]
-        last_c = tsp_hc[:, half_size:]
+        half_size = int(self.hc.shape[2] / 2)
+        last_h = tsp_hc[:, :, :half_size]
+        last_c = tsp_hc[:, :, half_size:]
         return last_h, last_c
 
 
 # 效率极低
-# lstm递归函数调用复杂度至少为O(2^n),指数级
 # rnn递归函数调用复杂度为O(n),常数级
+# lstm递归函数调用复杂度至少为O(2^n),指数级
 class LSTMUnable:
     def __init__(self, x, h, c, wf, bf, wi, bi, wc, bc, wo, bo):
         # x.shape = batch, time_step, in_dims

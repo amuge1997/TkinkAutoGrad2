@@ -1,8 +1,7 @@
 
 
 import numpy as n
-from .Check import grad_outs_check
-from .Tensor import Tensor
+from .Tensor import Tensor, check_grad_outs
 
 
 # 测试
@@ -195,7 +194,7 @@ class Conv2d:
 
         return z
 
-    @grad_outs_check
+    @check_grad_outs
     def backward(self, grad):
         pad_in_features = self.pad_in_features
         kernel_size = self.kernel_size

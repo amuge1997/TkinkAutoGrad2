@@ -12,16 +12,18 @@ if __name__ == '__main__':
     v = Tensor(n.random.randn(hidden_size, 1)/n.sqrt(hidden_size + 1), is_grad=True)
     b = Tensor(n.zeros(hidden_size, ), is_grad=True)
 
-    t = n.linspace(0, 10, 100)
+    vb = Tensor(n.zeros((1,)), is_grad=True)
+
+    t = n.linspace(0, 10, 200)
     sin_x = n.sin(t)
     max_time_step = sin_x.shape[0]
 
-    batch = 1
-    time_step = 30
-    epoch = 300
+    batch = 30
+    time_step = 10
+    epoch = 1500
     mse = Losses.MSE()
-    adam = Optimizer.Adam(1e-3)
-    h = Tensor(n.zeros((batch, hidden_size)))
+    adam = Optimizer.Adam(2e-4)
+    h = Tensor(n.zeros((batch, 1, hidden_size)))
     loss_record = []
     for i in range(epoch):
         x_ls = []   # 输入
@@ -41,23 +43,25 @@ if __name__ == '__main__':
         y = Tensor(y)
 
         oh = Layers.RNN(x, h, u, w, b)()
-        yp = oh @ v
+        yp = oh @ v + vb
         loss = mse(yp, y)
 
+        for z in [u, w, v, vb]:
+            z.grad_zeros()
         backward(loss)
-        adam.run([u, w, v])
+        adam.run([u, w, v, vb])
 
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
 
-    h = Tensor(n.zeros((1, hidden_size)))
+    h = Tensor(n.zeros((1, 1, hidden_size)))
     yp_n = max_time_step - time_step
     yp_arr = n.zeros((yp_n, 1))
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
         oh = Layers.RNN(x, h, u, w, b)()
-        y = oh @ v
+        y = oh @ v + vb
         yp_arr[i] = y.arr[0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]
 

@@ -17,18 +17,19 @@ if __name__ == '__main__':
     bo = Tensor(n.zeros(hidden_size, ), is_grad=True)
 
     v = Tensor(n.random.randn(hidden_size, 1) / n.sqrt(hidden_size + 1), is_grad=True)
+    b = Tensor(n.zeros((1, )), is_grad=True)
 
-    t = n.linspace(0, 10, 100)
+    t = n.linspace(0, 10, 200)
     sin_x = n.sin(t)
     max_time_step = sin_x.shape[0]
 
-    batch = 1
-    time_step = 10
-    epoch = 1000
+    batch = 8
+    time_step = 8
+    epoch = 2000
     mse = Losses.MSE()
     adam = Optimizer.Adam(1e-3)
-    h = Tensor(n.zeros((batch, hidden_size)))
-    c = Tensor(n.zeros((batch, hidden_size)))
+    h = Tensor(n.zeros((batch, 1, hidden_size)))
+    c = Tensor(n.zeros((batch, 1, hidden_size)))
     loss_record = []
     for i in range(epoch):
         x_ls = []   # 输入
@@ -47,24 +48,28 @@ if __name__ == '__main__':
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
         oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
-        yp = oh @ v
+        yp = oh @ v + b
         loss = mse(yp, y)
 
+        for w in [wf, bf, wi, bi, wc, bc, wo, bo, v, b]:
+            w.grad_zeros()
+
         backward(loss)
-        adam.run([wf, bf, wi, bi, wc, bc, wo, bo, v])
+        adam.run([wf, bf, wi, bi, wc, bc, wo, bo, v, b])
 
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
 
-    h = Tensor(n.zeros((batch, hidden_size)))
+    h = Tensor(n.zeros((1, 1, hidden_size)))
+    c = Tensor(n.zeros((1, 1, hidden_size)))
     yp_n = max_time_step - time_step
     yp_arr = n.zeros((yp_n, 1))
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
         oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
-        y = oh @ v
-        yp_arr[i] = y.arr[0, 0]
+        y = oh @ v + b
+        yp_arr[i] = y.arr[0, 0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]
 
     import matplotlib.pyplot as p
