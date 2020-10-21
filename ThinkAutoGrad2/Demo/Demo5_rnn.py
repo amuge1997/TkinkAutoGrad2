@@ -1,18 +1,18 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers
+from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers, Init
 
 
 if __name__ == '__main__':
 
     hidden_size = 8
-    u = Tensor(n.random.randn(1, hidden_size)/n.sqrt(hidden_size + 1), is_grad=True)
-    w = Tensor(n.random.randn(hidden_size, hidden_size)/n.sqrt(hidden_size + hidden_size), is_grad=True)
-    v = Tensor(n.random.randn(hidden_size, 1)/n.sqrt(hidden_size + 1), is_grad=True)
-    b = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    u = Init.xavier((1, hidden_size), is_grad=True)
+    w = Init.xavier((hidden_size, hidden_size), is_grad=True)
+    v = Init.xavier((hidden_size, 1), is_grad=True)
+    b = Init.zeros((hidden_size,), is_grad=True)
 
-    vb = Tensor(n.zeros((1,)), is_grad=True)
+    vb = Init.zeros((1,), is_grad=True)
 
     t = n.linspace(0, 10, 200)
     sin_x = n.sin(t)
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     epoch = 1500
     mse = Losses.MSE()
     adam = Optimizer.Adam(2e-4)
-    h = Tensor(n.zeros((batch, 1, hidden_size)))
+    h = Init.zeros((batch, 1, hidden_size))
     loss_record = []
     for i in range(epoch):
         x_ls = []   # 输入
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
 
-    h = Tensor(n.zeros((1, 1, hidden_size)))
+    h = Init.zeros((1, 1, hidden_size))
     yp_n = max_time_step - time_step
     yp_arr = n.zeros((yp_n, 1))
     for i in range(0, yp_n):

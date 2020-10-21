@@ -1,23 +1,23 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers
+from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers, Init
 
 
 if __name__ == '__main__':
 
     hidden_size = 8
-    wf = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
-    bf = Tensor(n.zeros(hidden_size, ), is_grad=True)
-    wi = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
-    bi = Tensor(n.zeros(hidden_size, ), is_grad=True)
-    wc = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
-    bc = Tensor(n.zeros(hidden_size, ), is_grad=True)
-    wo = Tensor(n.random.randn(1+hidden_size, hidden_size)/n.sqrt(1+hidden_size+hidden_size), is_grad=True)
-    bo = Tensor(n.zeros(hidden_size, ), is_grad=True)
+    wf = Init.xavier((hidden_size + 1, hidden_size), is_grad=True)
+    bf = Init.zeros((hidden_size,), is_grad=True)
+    wi = Init.xavier((hidden_size + 1, hidden_size), is_grad=True)
+    bi = Init.zeros((hidden_size,), is_grad=True)
+    wc = Init.xavier((hidden_size + 1, hidden_size), is_grad=True)
+    bc = Init.zeros((hidden_size,), is_grad=True)
+    wo = Init.xavier((hidden_size + 1, hidden_size), is_grad=True)
+    bo = Init.zeros((hidden_size,), is_grad=True)
 
-    v = Tensor(n.random.randn(hidden_size, 1) / n.sqrt(hidden_size + 1), is_grad=True)
-    b = Tensor(n.zeros((1, )), is_grad=True)
+    v = Init.xavier((hidden_size, 1), 1, is_grad=True)
+    b = Init.zeros((1,), is_grad=True)
 
     t = n.linspace(0, 10, 200)
     sin_x = n.sin(t)
@@ -28,8 +28,8 @@ if __name__ == '__main__':
     epoch = 2000
     mse = Losses.MSE()
     adam = Optimizer.Adam(1e-3)
-    h = Tensor(n.zeros((batch, 1, hidden_size)))
-    c = Tensor(n.zeros((batch, 1, hidden_size)))
+    h = Init.zeros((batch, 1, hidden_size))
+    c = Init.zeros((batch, 1, hidden_size))
     loss_record = []
     for i in range(epoch):
         x_ls = []   # 输入
@@ -60,8 +60,8 @@ if __name__ == '__main__':
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
 
-    h = Tensor(n.zeros((1, 1, hidden_size)))
-    c = Tensor(n.zeros((1, 1, hidden_size)))
+    h = Init.zeros((1, 1, hidden_size))
+    c = Init.zeros((1, 1, hidden_size))
     yp_n = max_time_step - time_step
     yp_arr = n.zeros((yp_n, 1))
     for i in range(0, yp_n):

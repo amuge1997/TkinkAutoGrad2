@@ -1,27 +1,27 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import Model, backward, Utils, Losses, Layers, Activate, Tensor, Optimizer
+from ThinkAutoGrad2.Core import Model, backward, Utils, Losses, Layers, Activate, Tensor, Optimizer, Init
 from sklearn.metrics import accuracy_score
 
 
 class Net(Model):
     def __init__(self, out_c):
         super(Net, self).__init__()
-        ts_kernels1 = Tensor(n.random.randn(4, 1, 2, 2) / n.sqrt(4 + 1), is_grad=True)
-        ts_bias1 = Tensor(n.zeros((4,)), is_grad=True)
+        ts_kernels1 = Init.xavier((4, 1, 2, 2), 4, 1, is_grad=True)
+        ts_bias1 = Init.zeros((4,), is_grad=True)
 
-        ts_kernels2 = Tensor(n.random.randn(8, 4, 2, 2) / n.sqrt(8 + 4), is_grad=True)
-        ts_bias2 = Tensor(n.zeros((8,)), is_grad=True)
+        ts_kernels2 = Init.xavier((8, 4, 2, 2), 8, 4, is_grad=True)
+        ts_bias2 = Init.zeros((8,), is_grad=True)
 
-        ts_kernels4 = Tensor(n.random.randn(16, 8, 2, 2) / n.sqrt(16 + 8), is_grad=True)
-        ts_bias4 = Tensor(n.zeros((16,)), is_grad=True)
+        ts_kernels4 = Init.xavier((16, 8, 2, 2), 16, 8, is_grad=True)
+        ts_bias4 = Init.zeros((16,), is_grad=True)
 
-        ts_kernels5 = Tensor(n.random.randn(32, 16, 3, 3) / n.sqrt(32 + 16), is_grad=True)
-        ts_bias5 = Tensor(n.zeros((32,)), is_grad=True)
+        ts_kernels5 = Init.xavier((32, 16, 3, 3), 32, 16, is_grad=True)
+        ts_bias5 = Init.zeros((32,), is_grad=True)
 
-        ts_weights3 = Tensor(n.random.randn(32 * 4 * 4, out_c) / n.sqrt(32 * 4 * 4 + out_c), is_grad=True)
-        ts_bias3 = Tensor(n.zeros((out_c,)), is_grad=True)
+        ts_weights3 = Init.xavier((32*4*4, out_c), 32*4*4, out_c, is_grad=True)
+        ts_bias3 = Init.zeros((out_c,), is_grad=True)
 
         self.weights_list = [
             ts_kernels1, ts_bias1, ts_kernels2, ts_bias2,

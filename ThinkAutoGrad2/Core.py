@@ -1,6 +1,7 @@
 from .Tensor import Tensor
 from .Model import Model
 from .Backward import backward
+from .Init import Init
 
 
 class Activate:
