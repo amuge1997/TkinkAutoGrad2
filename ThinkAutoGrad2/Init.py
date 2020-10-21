@@ -2,11 +2,8 @@ from .Tensor import Tensor
 import numpy as n
 
 
-class Init:
-
-    # 1级
-    @staticmethod
-    def xavier(shape, in_dims=None, out_dims=None, is_grad=False):
+def xavier_inps_check(func):
+    def wrap(shape, in_dims=None, out_dims=None, is_grad=False):
         if len(shape) == 1:
             if in_dims is None:
                 in_dims = shape[0]
@@ -18,6 +15,16 @@ class Init:
                 in_dims = shape[0]
             if out_dims is None:
                 out_dims = shape[1]
+        return func(shape, in_dims, out_dims, is_grad)
+    return wrap
+
+
+class Init:
+
+    # 1级
+    @staticmethod
+    @xavier_inps_check
+    def xavier(shape, in_dims=None, out_dims=None, is_grad=False):
         mean = 0.
         std = n.sqrt(1 / (in_dims + out_dims))
         ret = Init.gaussian(shape, mean, std, is_grad)
