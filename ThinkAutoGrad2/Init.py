@@ -2,7 +2,7 @@ from .Tensor import Tensor
 import numpy as n
 
 
-def xavier_inps_check(func):
+def check_xavier_inps(func):
     def wrap(shape, in_dims=None, out_dims=None, is_grad=False):
         if len(shape) == 1:
             if in_dims is None:
@@ -23,7 +23,7 @@ class Init:
 
     # 1级
     @staticmethod
-    @xavier_inps_check
+    @check_xavier_inps
     def xavier(shape, in_dims=None, out_dims=None, is_grad=False):
         mean = 0.
         std = n.sqrt(1 / (in_dims + out_dims))
