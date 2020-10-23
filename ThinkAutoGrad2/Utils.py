@@ -77,7 +77,6 @@ class Repeat:
     @check_grad_outs
     def backward(self, grad):
         gz = n.zeros(self.x_shape, dtype='float32')
-        # gz = n.sum(grad, axis=self.axis)
         sli1 = [slice(None)] * self.axis + \
               [None] + \
               [slice(None)] * (len(self.x_shape) - self.axis - 1)
