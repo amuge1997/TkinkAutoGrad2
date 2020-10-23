@@ -1,6 +1,6 @@
 
 from ThinkAutoGrad2.Tensor import Tensor
-from ThinkAutoGrad2.Activate import Sigmoid
+from ThinkAutoGrad2.Activate import Activate
 import numpy as n
 
 
@@ -22,12 +22,12 @@ b = Tensor(n.zeros((1,)), is_grad=True)
 c = Tensor(n.array(1 / 4))
 
 z = inps @ w + b
-loss = c * (labs - Sigmoid(z)()) * (labs - Sigmoid(z)())
+loss = c * (labs - Activate.sigmoid(z)) * (labs - Activate.sigmoid(z))
 g = n.ones(loss.shape, dtype=n.float32)
 
 for i in range(5000):
     z = inps @ w + b
-    outs = Sigmoid(z)()
+    outs = Activate.sigmoid(z)
     loss = c * (labs - outs) * (labs - outs)
     loss.backward(g)
 
@@ -40,7 +40,7 @@ for i in range(5000):
     print('loss - {}'.format(n.sum(loss.arr)))
 
 z = inps @ w + b
-outs = Sigmoid(z)()
+outs = Activate.sigmoid(z)
 
 print('outs')
 print(outs)

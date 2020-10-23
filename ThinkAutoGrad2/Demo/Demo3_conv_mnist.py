@@ -11,7 +11,7 @@ def test1():
     image = Tensor(n.ones((1, in_c, 5, 5)))
     kernel = Tensor(n.ones((out_c, in_c, 3, 3)))
     bias = Tensor(n.ones(out_c))
-    image2 = Layers.Conv2d(image, kernel, bias, (1, 1), is_padding=False)()
+    image2 = Layers.conv2d(image, kernel, bias, (1, 1), is_padding=False)
 
     grad = n.ones_like(image2.arr)
     image2.backward(grad)
@@ -93,14 +93,14 @@ def test2():
     batch_i = n.random.randint(0, n_samples, batch_size)
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y0 = Layers.UpSample2d(ts_batch_x, stride=(2, 2))()
-    y1 = Activate.Relu(Layers.Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
-    y2 = Activate.Relu(Layers.Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
-    y6 = Activate.Relu(Layers.Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
-    y7 = Activate.Relu(Layers.Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
-    y3 = Layers.Flatten(y7)()
+    y0 = Layers.up_sample2d(ts_batch_x, stride=(2, 2))
+    y1 = Activate.relu(Layers.conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2)))  # 16
+    y2 = Activate.relu(Layers.conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2)))  # 8
+    y6 = Activate.relu(Layers.conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2)))  # 4
+    y7 = Activate.relu(Layers.conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True))  # 4
+    y3 = Layers.flatten(y7)
     y4 = y3 @ ts_weights3 + ts_bias3
-    y5 = Activate.Sigmoid(y4)()
+    y5 = Activate.sigmoid(y4)
     loss = c * (ts_batch_y - y5) * (ts_batch_y - y5)
 
     g = n.ones(loss.shape)
@@ -113,14 +113,14 @@ def test2():
         ts_batch_x = ts_data_x[batch_i]
         ts_batch_y = ts_data_y[batch_i]
 
-        y0 = Layers.UpSample2d(ts_batch_x, stride=(2, 2))()
-        y1 = Activate.Relu(Layers.Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
-        y2 = Activate.Relu(Layers.Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
-        y6 = Activate.Relu(Layers.Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
-        y7 = Activate.Relu(Layers.Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
-        y3 = Layers.Flatten(y7)()
+        y0 = Layers.up_sample2d(ts_batch_x, stride=(2, 2))
+        y1 = Activate.relu(Layers.conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2)))  # 16
+        y2 = Activate.relu(Layers.conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2)))  # 8
+        y6 = Activate.relu(Layers.conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2)))  # 4
+        y7 = Activate.relu(Layers.conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True))  # 4
+        y3 = Layers.flatten(y7)
         y4 = y3 @ ts_weights3 + ts_bias3
-        y5 = Activate.Sigmoid(y4)()
+        y5 = Activate.sigmoid(y4)
         loss = c * (ts_batch_y - y5) * (ts_batch_y - y5)
 
         loss.backward(g)
@@ -136,14 +136,14 @@ def test2():
     batch_i = n.array(range(32))
     ts_batch_x = ts_data_x[batch_i]
     ts_batch_y = ts_data_y[batch_i]
-    y0 = Layers.UpSample2d(ts_batch_x, stride=(2, 2))()
-    y1 = Activate.Relu(Layers.Conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2))())()  # 16
-    y2 = Activate.Relu(Layers.Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
-    y6 = Activate.Relu(Layers.Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
-    y7 = Activate.Relu(Layers.Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
-    y3 = Layers.Flatten(y7)()
+    y0 = Layers.up_sample2d(ts_batch_x, stride=(2, 2))
+    y1 = Activate.relu(Layers.conv2d(y0, ts_kernels1, ts_bias1, stride=(3, 2)))  # 16
+    y2 = Activate.relu(Layers.conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2)))  # 8
+    y6 = Activate.relu(Layers.conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2)))  # 4
+    y7 = Activate.relu(Layers.conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True))  # 4
+    y3 = Layers.flatten(y7)
     y4 = y3 @ ts_weights3 + ts_bias3
-    y5 = Activate.Sigmoid(y4)()
+    y5 = Activate.sigmoid(y4)
 
     print()
     ls1 = [n.argmax(i) for i in ts_batch_y.arr]

@@ -1,5 +1,5 @@
-from .Activate import Tanh, Sigmoid
-from .Utils import Concat
+from .Activate import Activate
+from .Utils import Utils
 from .Tensor import Tensor, check_grad_outs
 
 
@@ -27,14 +27,14 @@ class RNN:
             raise Exception('维度错误, {}'.format(condition))
         return x, h, u, w, b
 
-    def __call__(self):
+    def forward(self):
         batch, time_step = self.x.shape[0], self.x.shape[1]
         tsp_h = self.h
         for tsp in range(time_step):
             p1 = self.x[:, tsp:tsp+1, :] @ self.u
             p2 = tsp_h @ self.w
             p3 = p1 + p2 + self.b
-            tsp_h = Tanh(p3)()
+            tsp_h = Activate.tanh(p3)
         z = tsp_h
         return z
 
@@ -111,18 +111,18 @@ class LSTMCell:
 
         half_size = int(hc.shape[2] / 2)
         h, c = hc[:, :, :half_size], hc[:, :, half_size:]
-        hx = Concat([h, x], 2)()
+        hx = Utils.concat([h, x], 2)
         # 遗忘门
-        ft = Sigmoid(hx @ wf + bf)()    # 遗忘比例
+        ft = Activate.sigmoid(hx @ wf + bf)    # 遗忘比例
         ct = c * ft
         # 输入门
-        it = Sigmoid(hx @ wi + bi)()    # 记忆比例
-        ct_ = Tanh(hx @ wc + bc)()      # 信息
+        it = Activate.sigmoid(hx @ wi + bi)    # 记忆比例
+        ct_ = Activate.tanh(hx @ wc + bc)      # 信息
         ct = ct + it * ct_
         # 输出门
-        ot = Sigmoid(hx @ wo + bo)()
-        ht = ot * Tanh(ct)()
-        self.ht_ct = Concat([ht, ct], 2)()
+        ot = Activate.sigmoid(hx @ wo + bo)
+        ht = ot * Activate.tanh(ct)
+        self.ht_ct = Utils.concat([ht, ct], 2)
         z = Tensor(self.ht_ct.arr, self, (self.x,  self.hc,     # hc(h和c合并)是复杂度为O(n)的关键
                                           self.wf, self.bf,
                                           self.wi, self.bi,
@@ -153,7 +153,7 @@ class LSTM:
         self.x = x
         self.h = h
         self.c = c
-        self.hc = Concat([h, c], axis=2)()          # hc(h和c合并)是复杂度为O(n)的关键
+        self.hc = Utils.concat([h, c], axis=2)          # hc(h和c合并)是复杂度为O(n)的关键
         # 遗忘门
         # wf.shape = hi_dims+in_dims, ci_dims
         # bf.shape = ci_dims
@@ -174,7 +174,7 @@ class LSTM:
         self.wo = wo
         self.bo = bo
 
-    def __call__(self):
+    def forward(self):
         batch, time_step, in_dims = self.x.shape
 
         tsp_hc = self.hc
@@ -231,24 +231,24 @@ class LSTMUnable:
 
             for tsp in range(time_step):
                 tsp_x = self.x[bah:bah + 1, tsp, :]     # 维度降低,去除time_step维度
-                hx_cat = Concat([tsp_h, tsp_x], 1)()
+                hx_cat = Utils.concat([tsp_h, tsp_x], 1)()
                 # 遗忘门
-                ft = Sigmoid(hx_cat @ self.wf + self.bf)()
+                ft = Activate.sigmoid(hx_cat @ self.wf + self.bf)
                 ct = ft * tsp_c
                 # 输入门
-                it = Sigmoid(hx_cat @ self.wi + self.bi)()
-                c_ = Tanh(hx_cat @ self.wc + self.bc)()
+                it = Activate.sigmoid(hx_cat @ self.wi + self.bi)
+                c_ = Activate.tanh(hx_cat @ self.wc + self.bc)
                 ct = ct + it * c_
                 # 输出门
-                ot = Sigmoid(hx_cat @ self.wo + self.bo)()
-                ht = ot * Tanh(ct)()
+                ot = Activate.sigmoid(hx_cat @ self.wo + self.bo)
+                ht = ot * Activate.tanh(ct)()
 
                 tsp_h = ht
                 tsp_c = ct
             last_h.append(tsp_h)
             last_c.append(tsp_c)
-        ret_h = Concat(last_h, 0)()
-        ret_c = Concat(last_c, 0)()
+        ret_h = Utils.concat(last_h, 0)()
+        ret_c = Utils.concat(last_c, 0)()
         return ret_h, ret_c
 
 

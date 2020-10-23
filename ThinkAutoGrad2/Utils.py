@@ -8,7 +8,7 @@ class Concat:
         self.xls = xls
         self.axis = axis
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.concatenate([i.arr for i in self.xls], self.axis), self, self.xls)
         return z
 
@@ -36,7 +36,7 @@ class Exp:
         self.x = x
         self.shape = x.shape
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.exp(self.x.arr), self, (self.x,))
         return z
 
@@ -52,7 +52,7 @@ class Log:
         self.x = x
         self.shape = x.shape
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.log(self.x.arr), self, (self.x,))
         return z
 
@@ -70,7 +70,7 @@ class Repeat:
         self.reps = reps
         self.axis = axis
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.repeat(self.x.arr, self.reps, self.axis), self, (self.x,))
         return z
 
@@ -102,7 +102,7 @@ class Sum:
         self.x_shape = x.shape
         self.axis = axis
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.sum(self.x.arr, self.axis, keepdims=True), self, (self.x,))
         return z
 
@@ -143,13 +143,29 @@ class Tile:
 
 
 class Utils:
-    Concat = Concat
-    Exp = Exp
-    Log = Log
-    Ln = Log
-    Repeat = Repeat
-    Sum = Sum
-    Tile = Tile
+    @staticmethod
+    def concat(xls, axis):
+        return Concat(xls, axis).forward()
+
+    @staticmethod
+    def exp(x):
+        return Exp(x).forward()
+
+    @staticmethod
+    def log(x):
+        return Log(x).forward()
+
+    @staticmethod
+    def repeat(x, reps, axis):
+        return Repeat(x, reps, axis).forward()
+
+    @staticmethod
+    def sum(x, axis):
+        return Sum(x, axis).forward()
+
+    @staticmethod
+    def tile(x, reps):
+        return Tile(x, reps).forward()
 
 
 if __name__ == '__main__':

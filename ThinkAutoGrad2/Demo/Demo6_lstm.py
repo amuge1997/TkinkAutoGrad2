@@ -1,7 +1,7 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers, Init
+from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers, Init, Utils
 
 
 if __name__ == '__main__':
@@ -26,7 +26,6 @@ if __name__ == '__main__':
     batch = 8
     time_step = 8
     epoch = 2000
-    mse = Losses.MSE()
     adam = Optimizer.Adam(1e-3)
     h = Init.zeros((batch, 1, hidden_size))
     c = Init.zeros((batch, 1, hidden_size))
@@ -47,9 +46,9 @@ if __name__ == '__main__':
         y = n.concatenate(y_ls)
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
-        oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
+        oh, oc = Layers.lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)
         yp = oh @ v + b
-        loss = mse(yp, y)
+        loss = Losses.mse(yp, y)
 
         for w in [wf, bf, wi, bi, wc, bc, wo, bo, v, b]:
             w.grad_zeros()
@@ -67,7 +66,7 @@ if __name__ == '__main__':
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
-        oh, oc = Layers.LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)()
+        oh, oc = Layers.lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)
         y = oh @ v + b
         yp_arr[i] = y.arr[0, 0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]

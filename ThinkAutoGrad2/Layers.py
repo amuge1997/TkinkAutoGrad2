@@ -4,13 +4,13 @@ from .Conv2d import Conv2d
 from .RNN import RNN, LSTM
 
 
-# 0级测试
+# 1级测试
 class Flatten:
     def __init__(self, x):
         self.x = x
         self.x_shape = x.arr.shape
 
-    def __call__(self):
+    def forward(self):
         import functools
         z = self.x.reshape((self.x_shape[0], functools.reduce(lambda x, y: x * y, self.x_shape[1:])))
         return z
@@ -23,7 +23,7 @@ class UpSample2d:
         self.x_shape = x.shape
         self.stride_hw = stride
 
-    def __call__(self):
+    def forward(self):
         inputs = self.x.arr
         n_samples, channels, height, width = self.x_shape
         stride_h, stride_w = self.stride_hw
@@ -53,10 +53,32 @@ class UpSample2d:
 
 
 class Layers:
-    Conv2d = Conv2d
-    Flatten = Flatten
-    LSTM = LSTM
-    RNN = RNN
-    UpSample2d = UpSample2d
+    @staticmethod
+    def conv2d(in_features, kernels, bias, stride=(1, 1), is_padding=False):
+        return Conv2d(in_features, kernels, bias, stride=stride, is_padding=is_padding).forward()
+
+    @staticmethod
+    def flatten(x):
+        return Flatten(x).forward()
+
+    @staticmethod
+    def lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo):
+        return LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo).forward()
+
+    @staticmethod
+    def rnn(x, h, u, w, b):
+        return RNN(x, h, u, w, b).forward()
+
+    @staticmethod
+    def up_sample2d(x, stride):
+        return UpSample2d(x, stride).forward()
+
+
+
+
+
+
+
+
 
 

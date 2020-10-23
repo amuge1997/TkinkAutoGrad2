@@ -21,7 +21,7 @@ class MSE:
         self.prds = prds
         self.labs = labs
 
-    def __call__(self):
+    def forward(self):
         prds = self.prds
         labs = self.labs
         c = Tensor(n.array([1 / prds.shape[0], ]))
@@ -37,7 +37,7 @@ class CrossEntropyLoss:
         self.labs = labs
         self.axis = axis
 
-    def __call__(self):
+    def forward(self):
         prds = self.prds
         labs = self.labs
         axis = self.axis
@@ -46,10 +46,10 @@ class CrossEntropyLoss:
         prds_max = n.repeat(prds_max, prds.shape[axis], axis=axis)
         prds_max = Tensor(prds_max)
         prds = (prds - prds_max)
-        eps = Utils.Exp(prds)()
-        sum_p = Utils.Sum(eps, axis=1)()
-        sum_p = Utils.Repeat(sum_p, prds.shape[axis], axis=1)()
-        log_softmax = prds - Utils.Ln(sum_p)()
+        eps = Utils.exp(prds)
+        sum_p = Utils.sum(eps, axis=1)
+        sum_p = Utils.repeat(sum_p, prds.shape[axis], axis=1)
+        log_softmax = prds - Utils.log(sum_p)
         nll = Tensor(n.array([0.0])) - labs * log_softmax
         c = Tensor(n.array([1 / batch]))
         ret = c * nll
@@ -87,10 +87,13 @@ class CrossEntropyLoss2:
 
 
 class Losses:
-    MSE = MSE
-    CrossEntropyLoss = CrossEntropyLoss
+    @staticmethod
+    def mse(prds, labs):
+        return MSE(prds, labs).forward()
 
-
+    @staticmethod
+    def cross_entropy_loss(prds, labs, axis):
+        return CrossEntropyLoss(prds, labs, axis).forward()
 
 
 

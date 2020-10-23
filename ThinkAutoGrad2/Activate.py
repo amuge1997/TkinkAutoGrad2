@@ -11,7 +11,7 @@ class Relu:
         self.x = x
         self.x_shape = x.arr.shape
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(n.where(self.x.arr > 0, self.x.arr, 0.), self, (self.x,))
         return z
 
@@ -27,7 +27,7 @@ class Sigmoid:
         self.x = x
         self.x_shape = x.arr.shape
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(1 / (1 + n.exp(- self.x.arr)), self, (self.x,))
         return z
 
@@ -47,7 +47,7 @@ class Tanh:
     def tanh(arr):
         return (n.exp(arr) - n.exp(-arr)) / (n.exp(arr) + n.exp(-arr))
 
-    def __call__(self):
+    def forward(self):
         z = Tensor(self.tanh(self.x.arr), self, (self.x,))
         return z
 
@@ -58,8 +58,18 @@ class Tanh:
 
 
 class Activate:
-    Relu = Relu
-    Sigmoid = Sigmoid
+    @staticmethod
+    def relu(x):
+        return Relu(x).forward()
+
+    @staticmethod
+    def sigmoid(x):
+        return Sigmoid(x).forward()
+
+    @staticmethod
+    def tanh(x):
+        return Tanh(x).forward()
+
 
 
 

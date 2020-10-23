@@ -130,7 +130,7 @@ def padding2d(image, kernel_size, stride_hw):
 
 # 卷积
 class Conv2d:
-    def __init__(self, in_features, kernels, bias, stride=(1, 1), is_padding=False):
+    def __init__(self, in_features, kernels, bias, stride, is_padding):
 
         # in_features.shape = n_samples, in_channels, in_height, in_width
         # kernel.shape = out_channels, in_channels, kernel_size, kernel_size
@@ -164,7 +164,7 @@ class Conv2d:
         self.pad_out_hw = None              # 根据补零后的输入得到的输出的高宽
         self.pad = None                     # 补零参数,记录了高宽两个维度的补零
 
-    def __call__(self):
+    def forward(self):
 
         in_features = self.in_features
         kernels = self.kernels

@@ -21,7 +21,6 @@ if __name__ == '__main__':
     batch = 30
     time_step = 10
     epoch = 1500
-    mse = Losses.MSE()
     adam = Optimizer.Adam(2e-4)
     h = Init.zeros((batch, 1, hidden_size))
     loss_record = []
@@ -42,9 +41,9 @@ if __name__ == '__main__':
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
 
-        oh = Layers.RNN(x, h, u, w, b)()
+        oh = Layers.rnn(x, h, u, w, b)
         yp = oh @ v + vb
-        loss = mse(yp, y)
+        loss = Losses.mse(yp, y)
 
         for z in [u, w, v, vb]:
             z.grad_zeros()
@@ -60,7 +59,7 @@ if __name__ == '__main__':
     for i in range(0, yp_n):
         x = sin_x[i:i + time_step].reshape((1, time_step, 1))
         x = Tensor(x)
-        oh = Layers.RNN(x, h, u, w, b)()
+        oh = Layers.rnn(x, h, u, w, b)
         y = oh @ v + vb
         yp_arr[i] = y.arr[0, 0]
     yr = sin_x[0 + time_step + 1:time_step + yp_n + 1]
@@ -77,12 +76,6 @@ if __name__ == '__main__':
     p.plot(loss_record, c='blue')
 
     p.show()
-
-
-
-
-
-
 
 
 

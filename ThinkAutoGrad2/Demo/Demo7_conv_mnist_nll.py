@@ -30,13 +30,13 @@ class Net(Model):
 
     def forward(self, inps):
         ts_kernels1, ts_bias1, ts_kernels2, ts_bias2, ts_kernels4, \
-        ts_bias4, ts_kernels5, ts_bias5, ts_weights3, ts_bias3 = self.weights_list
+        ts_bias4, ts_kernels5, ts_bias5, ts_weights3 = self.weights_list
 
-        y1 = Activate.Relu(Layers.Conv2d(inps, ts_kernels1, ts_bias1, stride=(2, 2))())()  # 16
-        y2 = Activate.Relu(Layers.Conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2))())()  # 8
-        y6 = Activate.Relu(Layers.Conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2))())()  # 4
-        y7 = Activate.Relu(Layers.Conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True)())()  # 4
-        y3 = Layers.Flatten(y7)()
+        y1 = Activate.relu(Layers.conv2d(inps, ts_kernels1, ts_bias1, stride=(2, 2)))  # 16
+        y2 = Activate.relu(Layers.conv2d(y1, ts_kernels2, ts_bias2, stride=(2, 2)))  # 8
+        y6 = Activate.relu(Layers.conv2d(y2, ts_kernels4, ts_bias4, stride=(2, 2)))  # 4
+        y7 = Activate.relu(Layers.conv2d(y6, ts_kernels5, ts_bias5, stride=(1, 1), is_padding=True))  # 4
+        y3 = Layers.flatten(y7)
         y4 = y3 @ ts_weights3
         return y4
 
@@ -101,7 +101,7 @@ def test2():
         ts_batch_y = ts_data_y[batch_i]
 
         predict_y = net(ts_batch_x)
-        loss = Losses.CrossEntropyLoss(predict_y, ts_batch_y, axis=1)()     # 交叉熵
+        loss = Losses.cross_entropy_loss(predict_y, ts_batch_y, axis=1)     # 交叉熵
 
         backward(loss)
         adam.run(net.get_weights())
