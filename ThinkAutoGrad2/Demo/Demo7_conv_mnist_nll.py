@@ -51,9 +51,9 @@ def one_hot_encoding(labels, num_class=None):
 
 def load_data():
     import cv2 as cv
-    from SB_MNIST import load_MNIST
 
-    data_x, data_y = load_MNIST()
+    dc = n.load('mnist.npz')
+    data_x, data_y = dc['x_train'], dc['y_train']
 
     x_ls = []
     for i in data_x:
