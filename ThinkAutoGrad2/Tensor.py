@@ -17,7 +17,7 @@ class Tensor:
     def __init__(self, arr, opt=None, ts_tp=tuple(), is_grad=False):
         self.shape = arr.shape
         self.arr = arr.astype('float32')
-        self.grad = n.zeros(self.shape).astype('float32')
+        self.grad = n.zeros(self.shape, dtype='float32')
         self.opt = opt          # 算子
         self.ts_ls = ts_tp      # 子元组
         self.is_grad = is_grad  # 是否记录梯度
@@ -56,12 +56,9 @@ class Tensor:
         self.grad = n.float32(n.zeros(self.shape))
 
     def backward(self, grad):
-        
         if self.is_grad:
             self.grad += grad
-            # except:
-            #     print('g', grad.shape, self.grad.shape)
-        
+
         if self.opt is not None:
             grads = self.opt.backward(grad)
             for i, v in enumerate(self.ts_ls):
@@ -382,8 +379,8 @@ class Transpose:
 
 if __name__ == "__main__":
 
-    a = Tensor(n.ones((2, 3, 2)))
-    b = Tensor(n.ones((3, 2)))
+    a = Tensor(n.ones((2, 3, 2)), is_grad=True)
+    b = Tensor(n.ones((3, 2)), is_grad=True)
 
     c = a / b
     g = n.ones_like(c.arr, dtype=n.float32)
@@ -393,8 +390,8 @@ if __name__ == "__main__":
 
     print()
 
-    a = Tensor(n.ones((2, 3, 2)))
-    b = Tensor(n.ones((3, 2)))
+    a = Tensor(n.ones((2, 3, 2)), is_grad=True)
+    b = Tensor(n.ones((3, 2)), is_grad=True)
 
     c = a.transpose([0, 2, 1])
 
@@ -413,7 +410,14 @@ if __name__ == "__main__":
     print(a.grad)
     print()
 
+    a = Tensor(n.ones((1, 2)), is_grad=True)
+    print(a)
+    c = a.tile([3, 2])
+    print(c)
 
-
+    g = n.ones(c.shape)
+    print(g)
+    c.backward(g)
+    print(a.grad)
 
 

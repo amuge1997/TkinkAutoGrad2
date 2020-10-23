@@ -46,7 +46,8 @@ class Adam:
         arr += - lr * s / (n.sqrt(r) + e)
 
 
-
+class Optimizer:
+    Adam = Adam
 
 
 

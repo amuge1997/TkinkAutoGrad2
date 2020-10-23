@@ -52,5 +52,11 @@ class UpSample2d:
         return (gz, )
 
 
+class Layers:
+    Conv2d = Conv2d
+    Flatten = Flatten
+    LSTM = LSTM
+    RNN = RNN
+    UpSample2d = UpSample2d
 
 

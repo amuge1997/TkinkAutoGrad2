@@ -57,7 +57,9 @@ class Tanh:
         return (gz,)
 
 
-
+class Activate:
+    Relu = Relu
+    Sigmoid = Sigmoid
 
 
 
