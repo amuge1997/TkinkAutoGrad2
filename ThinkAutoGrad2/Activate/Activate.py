@@ -1,4 +1,4 @@
-from .Tensor import Tensor, check_grad_outs
+from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 import numpy as n
 
 
@@ -55,20 +55,6 @@ class Tanh:
     def backward(self, grad):
         gz = grad * (1 - self.tanh(self.x.arr) * self.tanh(self.x.arr))
         return (gz,)
-
-
-class Activate:
-    @staticmethod
-    def relu(x):
-        return Relu(x).forward()
-
-    @staticmethod
-    def sigmoid(x):
-        return Sigmoid(x).forward()
-
-    @staticmethod
-    def tanh(x):
-        return Tanh(x).forward()
 
 
 

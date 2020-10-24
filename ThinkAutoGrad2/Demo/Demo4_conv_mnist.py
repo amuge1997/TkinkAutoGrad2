@@ -1,7 +1,7 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import Model, backward, Utils, Losses, Layers, Activate, Tensor, Optimizer, Init
+from ThinkAutoGrad2 import Init, Layers, Losses, Optimizer, Utils, Tensor, Activate, backward, Model
 from sklearn.metrics import accuracy_score
 
 

@@ -1,6 +1,6 @@
 import numpy as n
-from .Tensor import Tensor, check_grad_outs
-from .Utils import Utils
+from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
+from ThinkAutoGrad2 import Utils
 
 
 def check_losses_inps_shape_equal(func):
@@ -86,14 +86,6 @@ class CrossEntropyLoss2:
         return (gz,)
 
 
-class Losses:
-    @staticmethod
-    def mse(prds, labs):
-        return MSE(prds, labs).forward()
-
-    @staticmethod
-    def cross_entropy_loss(prds, labs, axis):
-        return CrossEntropyLoss(prds, labs, axis).forward()
 
 
 

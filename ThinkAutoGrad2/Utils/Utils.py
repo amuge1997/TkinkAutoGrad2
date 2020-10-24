@@ -1,4 +1,4 @@
-from .Tensor import Tensor, check_grad_outs
+from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 import numpy as n
 
 
@@ -140,50 +140,6 @@ class Tile:
             sli_ls.pop(-1)
         return False, res_ls
 
-
-class Utils:
-    @staticmethod
-    def concat(xls, axis):
-        return Concat(xls, axis).forward()
-
-    @staticmethod
-    def exp(x):
-        return Exp(x).forward()
-
-    @staticmethod
-    def log(x):
-        return Log(x).forward()
-
-    @staticmethod
-    def repeat(x, reps, axis):
-        return Repeat(x, reps, axis).forward()
-
-    @staticmethod
-    def sum(x, axis):
-        return Sum(x, axis).forward()
-
-    @staticmethod
-    def tile(x, reps):
-        return Tile(x, reps).forward()
-
-
-if __name__ == '__main__':
-    from ThinkAutoGrad2.Tensor import Tensor
-    a = Tensor(n.ones((1, 2)))
-    b = Tensor(n.ones((1, 2)))
-
-    c = Concat([a, b], axis=0)()
-
-    g = n.ones_like(c.arr, dtype=n.float32)
-
-    print(g.shape)
-    c.backward(g)
-    print(b.grad)
-
-    print()
-
-    a = Tensor(n.ones((1, 2)))
-    c = Sum(a, axis=1)()
 
 
 

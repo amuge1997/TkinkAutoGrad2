@@ -1,4 +1,4 @@
-from .Tensor import Tensor
+from ThinkAutoGrad2.Tensor import Tensor
 import numpy as n
 
 
@@ -44,10 +44,6 @@ class Adam:
         r = w_dc['r'] / (1 - p2 ** w_dc['epoch'])
 
         arr += - lr * s / (n.sqrt(r) + e)
-
-
-class Optimizer:
-    Adam = Adam
 
 
 

@@ -1,7 +1,7 @@
 import numpy as n
 n.random.seed(0)
 
-from ThinkAutoGrad2.Core import backward, Optimizer, Losses, Tensor, Layers, Init, Utils
+from ThinkAutoGrad2 import Init, Layers, Losses, Optimizer, Utils, Tensor, Activate, backward, Model
 
 
 if __name__ == '__main__':

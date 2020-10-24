@@ -1,6 +1,6 @@
-from .Activate import Activate
-from .Utils import Utils
-from .Tensor import Tensor, check_grad_outs
+from ThinkAutoGrad2.Activate.Activate import Activate
+from ThinkAutoGrad2.Utils.Utils import Utils
+from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 
 
 class RNN:

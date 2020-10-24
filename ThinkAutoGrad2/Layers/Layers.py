@@ -1,7 +1,5 @@
-from .Tensor import Tensor, check_grad_outs
+from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 import numpy as n
-from .Conv2d import Conv2d
-from .RNN import RNN, LSTM
 
 
 # 1级测试
@@ -50,28 +48,6 @@ class UpSample2d:
                 temp = n.sum(temp, axis=2, keepdims=True)
                 gz[:, :, hi:hi+1, wi:wi+1] = temp
         return (gz, )
-
-
-class Layers:
-    @staticmethod
-    def conv2d(in_features, kernels, bias, stride=(1, 1), is_padding=False):
-        return Conv2d(in_features, kernels, bias, stride=stride, is_padding=is_padding).forward()
-
-    @staticmethod
-    def flatten(x):
-        return Flatten(x).forward()
-
-    @staticmethod
-    def lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo):
-        return LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo).forward()
-
-    @staticmethod
-    def rnn(x, h, u, w, b):
-        return RNN(x, h, u, w, b).forward()
-
-    @staticmethod
-    def up_sample2d(x, stride):
-        return UpSample2d(x, stride).forward()
 
 
 

@@ -1,6 +1,5 @@
 
-from ThinkAutoGrad2.Tensor import Tensor
-from ThinkAutoGrad2.Activate import Activate
+from ThinkAutoGrad2 import Init, Layers, Losses, Optimizer, Utils, Tensor, Activate, backward, Model
 import numpy as n
 
 
