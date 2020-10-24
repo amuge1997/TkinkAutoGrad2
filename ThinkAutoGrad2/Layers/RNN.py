@@ -3,6 +3,7 @@ from ThinkAutoGrad2 import Utils
 from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 
 
+# 1级
 class RNN:
     def __init__(self, x, h, u, w, b):
         # x.shape = batch, time_step, in_dims
