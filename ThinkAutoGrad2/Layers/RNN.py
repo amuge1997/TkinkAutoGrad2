@@ -1,5 +1,5 @@
-from ThinkAutoGrad2.Activate.Activate import Activate
-from ThinkAutoGrad2.Utils.Utils import Utils
+from ThinkAutoGrad2 import Activate
+from ThinkAutoGrad2 import Utils
 from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
 
 
