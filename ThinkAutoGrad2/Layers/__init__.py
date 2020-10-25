@@ -10,6 +10,11 @@ def flatten(x):
     return Flatten(x).forward()
 
 
+def gru(x, h, w, wz, wr):
+    from .RNN import GRU
+    return GRU(x, h, w, wz, wr).forward()
+
+
 def lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo):
     from .RNN import LSTM
     return LSTM(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo).forward()

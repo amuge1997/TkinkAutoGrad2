@@ -1,6 +1,7 @@
 from ThinkAutoGrad2 import Activate
 from ThinkAutoGrad2 import Utils
 from ThinkAutoGrad2.Tensor import Tensor, check_grad_outs
+import numpy as n
 
 
 # 1级
@@ -98,7 +99,7 @@ class LSTMCell:
             raise Exception('维度错误, {}'.format(condition))
         return x, hc, wf, bf, wi, bi, wc, bc, wo, bo
 
-    def __call__(self):
+    def forward(self):
         x = self.x_copy
         hc = self.hc_copy
         wf = self.wf_copy
@@ -181,12 +182,81 @@ class LSTM:
         tsp_hc = self.hc
         for tsp in range(time_step):
             tsp_x = self.x[:, tsp:tsp + 1, :]
-            tsp_hc = LSTMCell(tsp_x, tsp_hc, self.wf, self.bf, self.wi, self.bi, self.wc, self.bc, self.wo, self.bo)()
+            tsp_hc = LSTMCell(tsp_x, tsp_hc, self.wf, self.bf, self.wi, self.bi, self.wc, self.bc, self.wo, self.bo).forward()
 
         half_size = int(self.hc.shape[2] / 2)
         last_h = tsp_hc[:, :, :half_size]
         last_c = tsp_hc[:, :, half_size:]
         return last_h, last_c
+
+
+class GRUCell:
+    def __init__(self, x, h, w, wz, wr):
+        # x.shape = batch, 1, x_dims
+        # h.shape = batch, 1, h_dims
+        # w.shape = h_dims+x_dims, h_dims
+        # wz.shape = h_dims+x_dims, h_dims
+        # wr.shape = h_dims+x_dims, h_dims
+        self.x = x
+        self.h = h
+        self.w = w
+        self.wz = wz
+        self.wr = wr
+
+        self.x_copy = x.copy()
+        self.h_copy = h.copy()
+        self.w_copy = w.copy()
+        self.wz_copy = wz.copy()
+        self.wr_copy = wr.copy()
+
+        self.ht = None
+
+    def forward(self):
+        x = self.x_copy
+        h = self.h_copy
+        w = self.w_copy
+        wz = self.wz_copy
+        wr = self.wr_copy
+
+        one = Tensor(n.array([1.]))
+
+        hx = Utils.concat([h, x], 2)
+        zt = Activate.sigmoid(hx @ wz)
+        rt = Activate.sigmoid(hx @ wr)
+        rth = Utils.concat([rt * h, x], 2)
+        h_ = Activate.tanh(rth @ w)
+        ht = (one - zt) * h + zt * h_
+        self.ht = ht
+        z = Tensor(ht.arr, self, (self.x, self.h, self.w, self.wz, self.wr))
+        return z
+
+    def backward(self, grad):
+        self.ht.backward(grad)
+        gz = (self.x_copy.grad, self.h_copy.grad, self.w_copy.grad, self.wz_copy.grad, self.wr_copy.grad)
+        return gz
+
+
+class GRU:
+    def __init__(self, x, h, w, wz, wr):
+        # x.shape = batch, time_steps, x_dims
+        # h.shape = batch, 1, h_dims
+        # w.shape = h_dims+x_dims, h_dims
+        # wz.shape = h_dims+x_dims, h_dims
+        # wr.shape = h_dims+x_dims, h_dims
+        self.x = x
+        self.h = h
+        self.w = w
+        self.wz = wz
+        self.wr = wr
+
+    def forward(self):
+        batch, time_step, in_dims = self.x.shape
+
+        tsp_h = self.h
+        for tsp in range(time_step):
+            tsp_x = self.x[:, tsp:tsp + 1, :]
+            tsp_h = GRUCell(tsp_x, tsp_h, self.w, self.wz, self.wr).forward()
+        return tsp_h
 
 
 # 效率极低

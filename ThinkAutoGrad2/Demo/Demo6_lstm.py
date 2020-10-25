@@ -2,7 +2,7 @@ import numpy as n
 n.random.seed(0)
 
 from ThinkAutoGrad2 import Init, Layers, Losses, Optimizer, Utils, Tensor, Activate, backward, Model
-
+import time
 
 if __name__ == '__main__':
 
@@ -23,13 +23,14 @@ if __name__ == '__main__':
     sin_x = n.sin(t)
     max_time_step = sin_x.shape[0]
 
-    batch = 8
-    time_step = 8
+    batch = 4
+    time_step = 4
     epoch = 2000
     adam = Optimizer.Adam(1e-3)
     h = Init.zeros((batch, 1, hidden_size))
     c = Init.zeros((batch, 1, hidden_size))
     loss_record = []
+    start_time = time.time()
     for i in range(epoch):
         x_ls = []   # 输入
         y_ls = []   # 真实输出
@@ -46,18 +47,22 @@ if __name__ == '__main__':
         y = n.concatenate(y_ls)
         y = y.reshape((batch, 1, 1))
         y = Tensor(y)
+
         oh, oc = Layers.lstm(x, h, c, wf, bf, wi, bi, wc, bc, wo, bo)
         yp = oh @ v + b
+
         loss = Losses.mse(yp, y)
 
-        for w in [wf, bf, wi, bi, wc, bc, wo, bo, v, b]:
-            w.grad_zeros()
+        for weight in [wf, bf, wi, bi, wc, bc, wo, bo, v, b]:
+            weight.grad_zeros()
 
         backward(loss)
         adam.run([wf, bf, wi, bi, wc, bc, wo, bo, v, b])
 
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
+    end_time = time.time()
+    print('train time - {}'.format(round(end_time - start_time, 3)))
 
     h = Init.zeros((1, 1, hidden_size))
     c = Init.zeros((1, 1, hidden_size))
