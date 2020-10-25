@@ -2,6 +2,7 @@ import numpy as n
 n.random.seed(0)
 
 from ThinkAutoGrad2 import Init, Layers, Losses, Optimizer, Utils, Tensor, Activate, backward, Model
+import time
 
 
 if __name__ == '__main__':
@@ -18,12 +19,13 @@ if __name__ == '__main__':
     sin_x = n.sin(t)
     max_time_step = sin_x.shape[0]
 
-    batch = 30
-    time_step = 10
-    epoch = 1500
-    adam = Optimizer.Adam(2e-4)
+    batch = 4
+    time_step = 4
+    epoch = 2000
+    adam = Optimizer.Adam(1e-3)
     h = Init.zeros((batch, 1, hidden_size))
     loss_record = []
+    start_time = time.time()
     for i in range(epoch):
         x_ls = []   # 输入
         y_ls = []   # 真实输出
@@ -52,6 +54,8 @@ if __name__ == '__main__':
 
         print('epoch {} - {}'.format(i+1, n.mean(loss.arr)))
         loss_record.append(n.mean(loss.arr))
+    end_time = time.time()
+    print('train time - {}'.format(round(end_time - start_time, 3)))
 
     h = Init.zeros((1, 1, hidden_size))
     yp_n = max_time_step - time_step
